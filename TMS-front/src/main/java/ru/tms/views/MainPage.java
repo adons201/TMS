@@ -27,6 +27,7 @@ import com.vaadin.flow.router.*;
 import com.vaadin.flow.server.VaadinSession;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
 import lombok.SneakyThrows;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import ru.tms.components.ChangeThemeComponent;
 import ru.tms.components.LanguageSelectView;
 import ru.tms.components.ReloadPage;
@@ -49,7 +50,7 @@ public class MainPage extends AppLayout implements LocaleChangeObserver
     private Button logoutButton;
     private HorizontalLayout header;
     private Component headerContent;
-    //private UserService userService;
+    private UserDetailsService userService;
 
     public MainPage() {
         //setPrimarySection(Section.DRAWER);
@@ -58,7 +59,7 @@ public class MainPage extends AppLayout implements LocaleChangeObserver
         addToNavbar(true, createHeaderContent());
         menu = createMenu();
         addToDrawer(createDrawerContent(menu));
-        //this.userService = userService;
+        this.userService = userService;
     }
 
     private Component createHeaderContent() {
@@ -70,9 +71,9 @@ public class MainPage extends AppLayout implements LocaleChangeObserver
         header.add(new DrawerToggle());
         viewTitle = new H1();
         header.add(viewTitle);
-        //logoutButton = createMenuButton(getTranslation("logout"), VaadinIcon.SIGN_OUT.create());
-        //logoutButton.addClickListener(e -> logout());
-        //logoutButton.getElement().setAttribute("title", getTranslation("logout") + " (Ctrl+L)");
+        logoutButton = createMenuButton(getTranslation("logout"), VaadinIcon.SIGN_OUT.create());
+        logoutButton.addClickListener(e -> logout());
+        logoutButton.getElement().setAttribute("title", getTranslation("logout") + " (Ctrl+L)");
         return header;
     }
 
@@ -198,7 +199,7 @@ public class MainPage extends AppLayout implements LocaleChangeObserver
 
         SubMenu subMenu = menuItem.getSubMenu();
         //subMenu.addItem(profileButton);
-        //subMenu.addItem(logoutButton);
+        subMenu.addItem(logoutButton);
         addToNavbar(/*changeThemeComponent,*/ /*new LanguageSelectView().getLangSelect(),*/ menuBar);
     }
 

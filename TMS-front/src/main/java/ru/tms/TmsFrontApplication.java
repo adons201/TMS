@@ -16,6 +16,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.boot.autoconfigure.web.servlet.error.ErrorMvcAutoConfiguration;
 import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
+import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 import org.springframework.context.annotation.ComponentScan;
 import ru.tms.config.VaadinI18NProvider;
 import ru.tms.views.*;
@@ -28,6 +29,7 @@ import static java.lang.System.setProperty;
 @ComponentScan({"ru.tms.*"})
 @Theme(value = "TMS-front")
 @PWA(name = "TMS-front", shortName = "TMS")
+@EnableDiscoveryClient
 public class TmsFrontApplication extends SpringBootServletInitializer implements VaadinServiceInitListener,
         AppShellConfigurator {
 
@@ -86,7 +88,7 @@ public class TmsFrontApplication extends SpringBootServletInitializer implements
     }
 
     private boolean isLoggedIn() {
-        return true;//SecurityUtils.isUserLoggedIn();
+        return false; //SecurityUtils.isUserLoggedIn();
     }
 
     private String getPathView(Class<? extends Component> navigationTarget) {

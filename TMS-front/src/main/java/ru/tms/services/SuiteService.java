@@ -1,4 +1,4 @@
-package ru.tms.services.suite;
+package ru.tms.services;
 
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Service;
@@ -9,14 +9,12 @@ import ru.tms.dto.SuiteDto;
 import ru.tms.models.ParentWebModel;
 import ru.tms.models.SuiteWebModel;
 import ru.tms.models.TestWebModel;
-import ru.tms.services.test.TestService;
-import ru.tms.services.WebClientServiceBack;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
-public class SuiteService implements WebClientSuite{
+public class SuiteService {
 
     private final TestService testService;
     private final WebClientServiceBack webClientService;
@@ -26,7 +24,6 @@ public class SuiteService implements WebClientSuite{
         this.webClientService = webClientService;
     }
 
-    @Override
     public Suite getSuiteById(Long suiteId) throws NoSuchElementException {
         return webClientService.sendRequest("/api/suite{suiteId}",
                 WebClientServiceBack.HttpMethod.GET,
@@ -36,7 +33,6 @@ public class SuiteService implements WebClientSuite{
                 null);
     }
 
-    @Override
     public synchronized SuiteDto createSuite(SuiteDto suiteDto) {
         return webClientService.sendRequest("/api/suite",
                 WebClientServiceBack.HttpMethod.POST,
@@ -46,7 +42,6 @@ public class SuiteService implements WebClientSuite{
                 null);
     }
 
-    @Override
     public synchronized SuiteDto updateSuite(Long suiteId, SuiteDto suiteDto) {
         return webClientService.sendRequest("/api/suite/{suiteId}",
                 WebClientServiceBack.HttpMethod.PUT,
@@ -56,7 +51,6 @@ public class SuiteService implements WebClientSuite{
                 null);
     }
 
-    @Override
     public synchronized void deleteSuite(Long suiteId) {
         SuiteDto suiteDto = webClientService.sendRequest("/api/suite/{suiteId}",
                 WebClientServiceBack.HttpMethod.DELETE,
@@ -66,7 +60,6 @@ public class SuiteService implements WebClientSuite{
                 null);
     }
 
-    @Override
     public List<Suite> getAllSuitesByProject(Long projectId) {
         return webClientService.sendRequest("/api/suites/{projectId}",
                 WebClientServiceBack.HttpMethod.GET,
@@ -76,7 +69,6 @@ public class SuiteService implements WebClientSuite{
                 Collections.emptyList());
     }
 
-    @Override
     public List<Suite> getAllChildSuitesBySuite(Long suiteId) {
         return webClientService.sendRequest("/api//childAllSuites/{suiteId}",
                 WebClientServiceBack.HttpMethod.GET,

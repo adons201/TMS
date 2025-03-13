@@ -3,119 +3,109 @@ package ru.tms.services;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.MediaType;
+//import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
+//import org.springframework.security.oauth2.client.web.DefaultOAuth2AuthorizedClientManager;
+//import org.springframework.security.oauth2.client.web.OAuth2AuthorizedClientRepository;
 import org.springframework.stereotype.Service;
-import org.springframework.web.reactive.function.client.WebClient;
-import reactor.core.publisher.Mono;
+import org.springframework.web.client.RestClient;
 import org.springframework.web.util.UriComponentsBuilder;
+//import ru.tms.security.OAuthClientHttpRequestInterceptor;
 
 import java.util.Map;
 
 @Service
 public class WebClientServiceBack {
 
-    private final WebClient webClientBack;
+    private final RestClient restClient;
 
-    public WebClientServiceBack(WebClient.Builder webClientBuilder, @Value("${service_back.url}") String serviceBackUrl) {
-        this.webClientBack = webClientBuilder.baseUrl(serviceBackUrl).build();
+    public WebClientServiceBack(RestClient.Builder restClientBuilder,
+                                @Value("${tms.services.back.url}") String serviceBackUrl,
+//                                ClientRegistrationRepository clientRegistrationRepository,
+//                                OAuth2AuthorizedClientRepository authorizedClientRepository,
+                                @Value("${tms.services.back.registration-id}") String registrationId) {
+
+        this.restClient = restClientBuilder
+                .baseUrl(serviceBackUrl)
+                .defaultHeader("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+//                .requestInterceptor(new OAuthClientHttpRequestInterceptor(
+//                        new DefaultOAuth2AuthorizedClientManager(clientRegistrationRepository,
+//                                authorizedClientRepository), registrationId))
+                .build();
     }
 
-    public <T> Mono<T> sendRequest(String path, HttpMethod method,
-                                   Map<String, Object> pathVariables,
-                                   Object queryParams,
-                                   ParameterizedTypeReference<T> responseType, T defaultValue) {
+    public <T> T sendRequest(String path, HttpMethod method,
+                             Map<String, Object> pathVariables,
+                             Object queryParams,
+                             ParameterizedTypeReference<T> responseType, T defaultValue) {
 
         return requestDataFromServiceBack(path, method, pathVariables, queryParams,
                 null, responseType, defaultValue);
     }
 
-    public <T> Mono<T> sendRequest(String path, HttpMethod method,
-                                   Map<String, Object> pathVariables,
-                                   Object queryParams,
-                                   Class<T> responseType, T defaultValue) {
-        return  requestDataFromServiceBack(path, method, pathVariables, queryParams,
+    public <T> T sendRequest(String path, HttpMethod method,
+                             Map<String, Object> pathVariables,
+                             Object queryParams,
+                             Class<T> responseType, T defaultValue) {
+        return requestDataFromServiceBack(path, method, pathVariables, queryParams,
                 responseType, null, defaultValue);
     }
 
+    private <T> T requestDataFromServiceBack(String path, HttpMethod method,
+                                             Map<String, Object> pathVariables,
+                                             Object queryParams,
+                                             Class<T> responseType1,
+                                             ParameterizedTypeReference<T> responseType2, T defaultValue) {
 
-    private  <T> Mono<T> requestDataFromServiceBack(String path, HttpMethod method,
-                                                  Map<String, Object> pathVariables,
-                                                  Object queryParams,
-                                                  Class<T> responseType1,
-                                                  ParameterizedTypeReference<T> responseType2, T defaultValue) {
+        RestClient.RequestBodySpec requestBodySpec = null;
+        RestClient.RequestHeadersSpec<?> requestHeadersSpec = null;
 
-        if (method == HttpMethod.GET || method == HttpMethod.DELETE) {
-            WebClient.RequestHeadersUriSpec<?> requestHeadersUriSpec;
-            WebClient.RequestHeadersSpec<?> requestHeadersSpec;
-
-            if (method == HttpMethod.DELETE)  requestHeadersUriSpec = webClientBack.delete();
-            else requestHeadersUriSpec = webClientBack.get();
-
-            if (pathVariables != null && !pathVariables.isEmpty())
-                requestHeadersSpec = requestHeadersUriSpec.uri(path, pathVariables);
-            else requestHeadersSpec = requestHeadersUriSpec.uri(path);
-
-            return requestHeadersSpec.exchangeToMono(response -> {
-                            // Обработка ответа и конвертация в нужный тип
-                            if(response.statusCode().is2xxSuccessful()) {
-                                if (responseType1 != null ) return response.bodyToMono(responseType1);
-                                else return response.bodyToMono(responseType2);
-                            } else {
-                                return Mono.just(defaultValue); // Возврат дефолтного значения
-                            }
-                        })
-                        .onErrorResume(error -> {
-                            System.err.println("Error: " + error.getMessage());
-                            return Mono.just(defaultValue); // Возврат дефолтного значения при ошибке
-                        });
-
-        }
-        String uriString;
-        WebClient.RequestBodySpec requestBodySpec;
-        // 1. Строим URI, используя как переменные пути, так и параметры запроса.
         UriComponentsBuilder uriBuilder = UriComponentsBuilder.fromPath(path);
 
-        // 2. Добавляем параметры запроса в URI и преобразуем URI builder в строку URI
         if (pathVariables != null && !pathVariables.isEmpty()) {
-            uriString = uriBuilder.buildAndExpand(pathVariables).toUriString();
-        } else  uriString = uriBuilder.build().toUriString();
+            uriBuilder.uriVariables(pathVariables);
+        }
 
-        // 3. Создаем спецификацию запроса (RequestBodySpec), указывая метод PUT и URI
-        if (method == HttpMethod.PUT) {
-            requestBodySpec = webClientBack.put().uri(uriString);
+        String uriString = uriBuilder.build().toUriString();
+
+        if (method == HttpMethod.GET) {
+            requestHeadersSpec = restClient.get().uri(uriString);
+        } else if (method == HttpMethod.POST) {
+            requestBodySpec = restClient.post().uri(uriString);
+        } else if (method == HttpMethod.PUT) {
+            requestBodySpec = restClient.put().uri(uriString);
+        } else if (method == HttpMethod.DELETE) {
+            requestHeadersSpec = restClient.delete().uri(uriString);
         } else {
-            requestBodySpec = webClientBack.post().uri(uriString);
+            throw new IllegalArgumentException("Unsupported HTTP method: " + method);
         }
 
-        // Устанавливаем заголовок Content-Type
-        if (queryParams != null) {
-            requestBodySpec.contentType(MediaType.APPLICATION_JSON)
-                    .bodyValue(queryParams); // Предполагаем, что queryParams - это тело запроса
+        RestClient.ResponseSpec responseSpec = null;
+
+        if (requestHeadersSpec!=null) {
+            responseSpec = requestHeadersSpec.retrieve();
+        }
+        if (requestBodySpec != null){
+            if (queryParams != null)
+                responseSpec = requestBodySpec.contentType(MediaType.APPLICATION_JSON).body(queryParams).retrieve();
+            else responseSpec = requestBodySpec.retrieve();
         }
 
-
-        // 4. Отправляем запрос и обрабатываем ответ
-        return requestBodySpec.exchangeToMono(response -> {
-                    // Обрабатываем ответ и преобразуем его в нужный тип
-                    if (response.statusCode().is2xxSuccessful()) {
-                        if (responseType1 != null ) return response.bodyToMono(responseType1);
-                        else return response.bodyToMono(responseType2);
-                    } else {
-                        return Mono.just(defaultValue); // Возвращаем значение по умолчанию для неуспешных ответов (не 2xx)
-                    }
-                })
-                .onErrorResume(error -> {
-                    System.err.println("Error: " + error.getMessage());
-                    return Mono.just(defaultValue); // Возвращаем значение по умолчанию при возникновении ошибки
-                });
-
+        try {
+            if (responseType1 != null) {
+                return responseSpec.body(responseType1);
+            } else {
+                return responseSpec.body(responseType2);
+            }
+        } catch (Exception e) {
+            System.err.println("Error during RestClient request: " + e.getMessage());
+            return defaultValue;
+        }
     }
 
     public static enum HttpMethod {
         POST,
         GET,
         PUT,
-        DELETE;
-
-        private HttpMethod() {
-        }
-    }}
+        DELETE
+    }
+}

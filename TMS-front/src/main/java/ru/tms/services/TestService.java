@@ -1,15 +1,14 @@
-package ru.tms.services.test;
+package ru.tms.services;
 
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Service;
 import ru.tms.components.Test;
 import ru.tms.dto.TestDto;
-import ru.tms.services.WebClientServiceBack;
 
 import java.util.*;
 
 @Service
-public class TestService implements WebClientTest{
+public class TestService {
 
     private final WebClientServiceBack webClientService;
 
@@ -17,7 +16,6 @@ public class TestService implements WebClientTest{
         this.webClientService = webClientServiceBack;
     }
 
-    @Override
     public Test getTestById(Long testId) throws NoSuchElementException {
         return webClientService.sendRequest("/api/test/{testId}",
                 WebClientServiceBack.HttpMethod.GET,
@@ -27,7 +25,6 @@ public class TestService implements WebClientTest{
                 null);
     }
 
-    @Override
     public List<Test> getAllTestByProjectId(Long projectId) {
         return webClientService.sendRequest("/api/test/projectId/{projectId}",
                 WebClientServiceBack.HttpMethod.GET,
@@ -37,7 +34,6 @@ public class TestService implements WebClientTest{
                 Collections.emptyList());
     }
 
-    @Override
     public List<Test> getAllTestBySuiteId(Long suiteId) {
         return webClientService.sendRequest("/api/test/suiteId/{suiteId}",
                 WebClientServiceBack.HttpMethod.GET,
@@ -47,7 +43,6 @@ public class TestService implements WebClientTest{
                 Collections.emptyList());
     }
 
-    @Override
     public List<Test> getTestsInParentSuiteAndChildSuites(Long suiteId) {
         return webClientService.sendRequest("/api/test/suiteIdAndChild/{suiteId}/",
                 WebClientServiceBack.HttpMethod.GET,
@@ -57,7 +52,6 @@ public class TestService implements WebClientTest{
                 Collections.emptyList());
     }
 
-    @Override
     public synchronized Test createTest(TestDto testDto) {
         return webClientService.sendRequest("/api/test",
                 WebClientServiceBack.HttpMethod.POST,
@@ -67,7 +61,6 @@ public class TestService implements WebClientTest{
                 null);
     }
 
-    @Override
     public synchronized void deleteTest(Long testId) {
         TestDto test = webClientService.sendRequest("/api/test/{testId}",
                 WebClientServiceBack.HttpMethod.DELETE,
@@ -77,7 +70,6 @@ public class TestService implements WebClientTest{
                 null);
     }
 
-    @Override
     public synchronized Test updateTest(Long testId, TestDto testDto) {
         return webClientService.sendRequest("/api/test/{testId}",
                 WebClientServiceBack.HttpMethod.PUT,
