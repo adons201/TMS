@@ -1,0 +1,66 @@
+logging:
+  level:
+    org:
+      springframework:
+        security: DEBUG
+        web: trace
+spring:
+  application:
+    name: api-gateway
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      password: pass
+      database: 0
+      timeout: 3000
+      lettuce:
+        pool:
+          max-active: 8
+          max-idle: 8
+          min-idle: 2
+          max-wait: 5000ms
+  security:
+    oauth2:
+      client:
+        provider:
+          keycloak:
+            issuer-uri: http://localhost:8083/realms/tms
+            user-name-attribute: preferred_username
+        registration:
+          keycloak:
+            client-id: tms-front
+            client-secret: odtEmSj72T3kE3ycqXNvMXdRF2X7SQIO
+            scope:
+              - openid
+              - edit_projects
+              - view_projects
+              - microprofile-jwt
+  cloud:
+    gateway:
+      globalcors:
+        cors-configurations:
+          '[/**]':
+            allowedOrigins: "*"
+            allowedMethods:
+              - GET
+              - POST
+              - PUT
+              - PATCH
+              - DELETE
+              - OPTIONS
+            allowedHeaders: "*"
+            exposedHeaders: "*"
+      routes:
+        - id: back-tms
+          uri: http://localhost:8081/
+          predicates:
+            - Path=/api/**
+          filters:
+            - TokenRelay=
+        - id: tms-front
+          uri: http://localhost:8000/
+          predicates:
+            - Path=/**
+          filters:
+            - TokenRelay=

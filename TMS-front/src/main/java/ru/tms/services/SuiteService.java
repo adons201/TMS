@@ -1,4 +1,4 @@
-package ru.tms.services;
+package ru.tms.services.suite;
 
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Service;
@@ -9,12 +9,14 @@ import ru.tms.dto.SuiteDto;
 import ru.tms.models.ParentWebModel;
 import ru.tms.models.SuiteWebModel;
 import ru.tms.models.TestWebModel;
+import ru.tms.services.test.TestService;
+import ru.tms.services.WebClientServiceBack;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
-public class SuiteService {
+public class SuiteService implements WebClientSuite{
 
     private final TestService testService;
     private final WebClientServiceBack webClientService;
@@ -24,58 +26,64 @@ public class SuiteService {
         this.webClientService = webClientService;
     }
 
+    @Override
     public Suite getSuiteById(Long suiteId) throws NoSuchElementException {
         return webClientService.sendRequest("/api/suite{suiteId}",
                 WebClientServiceBack.HttpMethod.GET,
                 Map.of("suiteId", suiteId),
                 null,
                 Suite.class,
-                null).block();
+                null);
     }
 
+    @Override
     public synchronized SuiteDto createSuite(SuiteDto suiteDto) {
         return webClientService.sendRequest("/api/suite",
                 WebClientServiceBack.HttpMethod.POST,
                 null,
                 suiteDto,
                 SuiteDto.class,
-                null).block();
+                null);
     }
 
+    @Override
     public synchronized SuiteDto updateSuite(Long suiteId, SuiteDto suiteDto) {
         return webClientService.sendRequest("/api/suite/{suiteId}",
                 WebClientServiceBack.HttpMethod.PUT,
                 Map.of("suiteId", suiteId),
                 suiteDto,
                 SuiteDto.class,
-                null).block();
+                null);
     }
 
+    @Override
     public synchronized void deleteSuite(Long suiteId) {
         SuiteDto suiteDto = webClientService.sendRequest("/api/suite/{suiteId}",
                 WebClientServiceBack.HttpMethod.DELETE,
                 Map.of("suiteId", suiteId),
                 null,
                 SuiteDto.class,
-                null).block();
+                null);
     }
 
+    @Override
     public List<Suite> getAllSuitesByProject(Long projectId) {
         return webClientService.sendRequest("/api/suites/{projectId}",
                 WebClientServiceBack.HttpMethod.GET,
                 Map.of("projectId", projectId),
                 null,
                 new ParameterizedTypeReference<List<Suite>>(){},
-                Collections.emptyList()).block();
+                Collections.emptyList());
     }
 
+    @Override
     public List<Suite> getAllChildSuitesBySuite(Long suiteId) {
         return webClientService.sendRequest("/api//childAllSuites/{suiteId}",
                 WebClientServiceBack.HttpMethod.GET,
                 Map.of("suiteId", suiteId),
                 null,
                 new ParameterizedTypeReference<List<Suite>>(){},
-                Collections.emptyList()).block();
+                Collections.emptyList());
     }
 
     public List<SuiteChild> getSuiteHierarchy(Long projectId) {

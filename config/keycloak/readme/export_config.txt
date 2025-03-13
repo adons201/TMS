@@ -1,0 +1,23 @@
+bash-5.1$ cd/opt/keycloak/bin
+bash: cd/opt/keycloak/bin: No such file or directory
+bash-5.1$ cd /opt/keycloak/bin
+bash-5.1$ pwd
+/opt/keycloak/bin
+bash-5.1$ ls
+client  federation-sssd-setup.sh  kcadm.bat  kcadm.sh  kc.bat  kcreg.bat  kcreg.sh  kc.sh
+bash-5.1$ ./kc.sh export --file/tmp/keycloak.json
+bash-5.1$ cd /tmp
+bash-5.1$ ls
+hsperfdata_keycloak  keycloak.json  uploads  vertx-cache
+bash-5.1$ cat keycloak.json
+
+
+
+PS C:\Users\adons> docker ps
+CONTAINER ID   IMAGE                              COMMAND                  CREATED       STATUS                 PORTS                              NAMES
+9b071449b39c   tms-backend                        "java -jar /opt/app/…"   2 hours ago   Up 2 hours             0.0.0.0:8080->8080/tcp             tms-parrent-tms-backend-1
+793c78c1929d   quay.io/keycloak/keycloak:23.0.4   "/opt/keycloak/bin/k…"   2 hours ago   Up 2 hours             8443/tcp, 0.0.0.0:8083->8080/tcp   tms-parrent-tms-keycloak-1
+30c35fcc94f2   postgres:14.8-alpine3.18           "docker-entrypoint.s…"   2 hours ago   Up 2 hours (healthy)   0.0.0.0:5432->5432/tcp             tms-parrent-postgres-1
+PS C:\Users\adons> docker cp 793c:/tmp/keycloak.json ./keycloak/
+PS C:\Users\adons> docker cp 793c78c1929d:/tmp/keycloak.json ./
+Successfully copied 147kB to C:\Users\adons\.\
