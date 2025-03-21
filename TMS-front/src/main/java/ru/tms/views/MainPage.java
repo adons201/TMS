@@ -38,7 +38,7 @@ import java.util.Optional;
 @CssImport("./styles/views/main/main-view.css")
 @CssImport("./styles/shared-styles.css")
 @PageTitle("TMS")
-@Route("tms")
+@Route("")
 public class MainPage extends AppLayout implements LocaleChangeObserver
 {
 
@@ -159,14 +159,13 @@ public class MainPage extends AppLayout implements LocaleChangeObserver
 
     private void logout() {
         VaadinSession.getCurrent().getSession().invalidate();
-        //UI.getCurrent().navigate(LoginPage.class);
     }
 
     @Override
     protected void onAttach(AttachEvent attachEvent) {
         super.onAttach(attachEvent);
         // User can quickly activate logout with Ctrl+L
-        //attachEvent.getUI().addShortcutListener(() -> logout(), Key.KEY_L, KeyModifier.CONTROL);
+        attachEvent.getUI().addShortcutListener(() -> logout(), Key.KEY_L, KeyModifier.CONTROL);
 
         //Button profileButton = createMenuButton(getTranslation("profile"), VaadinIcon.USER.create());
         //profileButton.addClickListener(buttonClickEvent -> UI.getCurrent().navigate(ProfileView.class));
