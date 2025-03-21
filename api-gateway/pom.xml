@@ -11,7 +11,7 @@
     </parent>
 
     <groupId>ru.tms</groupId>
-    <artifactId>ApiGateway</artifactId>
+    <artifactId>api-gateway</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>ApiGateway</name>
     <description>ApiGateway</description>
@@ -59,8 +59,14 @@
             <groupId>org.springframework.session</groupId>
             <artifactId>spring-session-core</artifactId>
         </dependency><!-- https://mvnrepository.com/artifact/org.springframework.session/spring-session-data-redis -->
-
-
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-config</artifactId>
+        </dependency>
     </dependencies>
 
     <build>
