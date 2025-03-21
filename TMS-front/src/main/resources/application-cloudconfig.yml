@@ -1,5 +1,6 @@
 server:
-  port: ${PORT:8000}
+  port: 8000
+  forward-headers-strategy: native
 spring:
   application:
     name: tms-front

@@ -112,9 +112,6 @@ public class CreateTestComponent extends Dialog {
                 testDto.setSteps(steps);
                 binder.validate();
                 if (binder.writeBeanIfValid(testDto)) {
-                    /*if (select.getValue() != null) {
-                        testDto.setSuiteId(select.getValue().getId());
-                    }*/
                     testService.createTest(testDto);
                     close();
                     actionClose.run();

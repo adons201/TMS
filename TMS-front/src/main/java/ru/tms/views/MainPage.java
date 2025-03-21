@@ -25,11 +25,8 @@ import com.vaadin.flow.i18n.LocaleChangeEvent;
 import com.vaadin.flow.i18n.LocaleChangeObserver;
 import com.vaadin.flow.router.*;
 import com.vaadin.flow.server.VaadinSession;
-import com.vaadin.flow.server.auth.AnonymousAllowed;
 import lombok.SneakyThrows;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import ru.tms.components.ChangeThemeComponent;
-import ru.tms.components.LanguageSelectView;
 import ru.tms.components.ReloadPage;
 
 import java.util.Arrays;
@@ -41,7 +38,7 @@ import java.util.Optional;
 @CssImport("./styles/views/main/main-view.css")
 @CssImport("./styles/shared-styles.css")
 @PageTitle("TMS")
-@Route("")
+@Route("tms")
 public class MainPage extends AppLayout implements LocaleChangeObserver
 {
 

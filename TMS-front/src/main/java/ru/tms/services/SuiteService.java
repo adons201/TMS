@@ -1,7 +1,10 @@
 package ru.tms.services;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.stereotype.Service;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.client.RestClient;
 import ru.tms.components.Suite;
 import ru.tms.components.Test;
 import ru.tms.dto.SuiteChild;
@@ -9,73 +12,59 @@ import ru.tms.dto.SuiteDto;
 import ru.tms.models.ParentWebModel;
 import ru.tms.models.SuiteWebModel;
 import ru.tms.models.TestWebModel;
+import ru.tms.services.client.SuiteClient;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
-@Service
-public class SuiteService {
+@RequiredArgsConstructor
+public class SuiteService implements SuiteClient {
 
     private final TestService testService;
-    private final WebClientServiceBack webClientService;
+    private final RestClient restClient;
 
-    public SuiteService(TestService testService, WebClientServiceBack webClientService) {
-        this.testService = testService;
-        this.webClientService = webClientService;
+    @Override
+    public Suite getSuite(Long suiteId) {
+        return this.restClient.get()
+                .uri("/api/suite{suiteId}",suiteId)
+                .retrieve()
+                .body(Suite.class);
     }
 
-    public Suite getSuiteById(Long suiteId) throws NoSuchElementException {
-        return webClientService.sendRequest("/api/suite{suiteId}",
-                WebClientServiceBack.HttpMethod.GET,
-                Map.of("suiteId", suiteId),
-                null,
-                Suite.class,
-                null);
-    }
-
-    public synchronized SuiteDto createSuite(SuiteDto suiteDto) {
-        return webClientService.sendRequest("/api/suite",
-                WebClientServiceBack.HttpMethod.POST,
-                null,
-                suiteDto,
-                SuiteDto.class,
-                null);
-    }
-
-    public synchronized SuiteDto updateSuite(Long suiteId, SuiteDto suiteDto) {
-        return webClientService.sendRequest("/api/suite/{suiteId}",
-                WebClientServiceBack.HttpMethod.PUT,
-                Map.of("suiteId", suiteId),
-                suiteDto,
-                SuiteDto.class,
-                null);
-    }
-
-    public synchronized void deleteSuite(Long suiteId) {
-        SuiteDto suiteDto = webClientService.sendRequest("/api/suite/{suiteId}",
-                WebClientServiceBack.HttpMethod.DELETE,
-                Map.of("suiteId", suiteId),
-                null,
-                SuiteDto.class,
-                null);
-    }
-
+    @Override
     public List<Suite> getAllSuitesByProject(Long projectId) {
-        return webClientService.sendRequest("/api/suites/{projectId}",
-                WebClientServiceBack.HttpMethod.GET,
-                Map.of("projectId", projectId),
-                null,
-                new ParameterizedTypeReference<List<Suite>>(){},
-                Collections.emptyList());
+        return this.restClient.get()
+                .uri("/api/suites/{projectId}",projectId)
+                .retrieve()
+                .body(new ParameterizedTypeReference<List<Suite>>(){});
     }
 
-    public List<Suite> getAllChildSuitesBySuite(Long suiteId) {
-        return webClientService.sendRequest("/api//childAllSuites/{suiteId}",
-                WebClientServiceBack.HttpMethod.GET,
-                Map.of("suiteId", suiteId),
-                null,
-                new ParameterizedTypeReference<List<Suite>>(){},
-                Collections.emptyList());
+    @Override
+    public SuiteDto createSuite(SuiteDto suiteDto) {
+        return this.restClient.post()
+                .uri("/api/suite")
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(suiteDto)
+                .retrieve()
+                .body(SuiteDto.class);
+    }
+
+    @Override
+    public SuiteDto updateSuite(Long suiteId, SuiteDto suiteDto) {
+        return this.restClient.post()
+                .uri("/api/suite/{suiteId}", suiteId)
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(suiteDto)
+                .retrieve()
+                .body(SuiteDto.class);
+    }
+
+    @Override
+    public ResponseEntity<Void> deleteSuite(Long suiteId) {
+        return this.restClient.delete()
+                .uri("/api/suite/{suiteId}", suiteId)
+                .retrieve()
+                .toBodilessEntity();
     }
 
     public List<SuiteChild> getSuiteHierarchy(Long projectId) {

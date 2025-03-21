@@ -1,13 +1,27 @@
 tms:
   services:
     back:
-      url: http://localhost:8080
+      url: lb://tms-back
       registration-id: keycloak
 spring:
   mustache:
     check-template-location: false
   security:
     oauth2:
+      client:
+        provider:
+          keycloak:
+            issuer-uri: http://localhost:8083/realms/tms
+            user-name-attribute: preferred_username
+        registration:
+          keycloak:
+            client-id: tms-front
+            client-secret: odtEmSj72T3kE3ycqXNvMXdRF2X7SQIO
+            scope:
+              - openid
+              - edit_projects
+              - view_projects
+              - microprofile-jwt
       resourceserver:
         jwt:
           issuer-uri: http://localhost:8083/realms/tms
@@ -16,7 +30,7 @@ logging:
     org:
       springframework:
         security: debug
-        web: trace
+        web: debug
 vaadin:
   allowed-packages:
     -com.vaadin

@@ -23,6 +23,9 @@ logging:
         descriptor:
           sql:
             BasicBinder: TRACE
+      springframework:
+        security: debug
+        web: debug
 eureka:
   client:
     service-url:

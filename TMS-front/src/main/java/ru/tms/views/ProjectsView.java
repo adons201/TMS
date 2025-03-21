@@ -20,6 +20,7 @@ import com.vaadin.flow.i18n.LocaleChangeEvent;
 import com.vaadin.flow.i18n.LocaleChangeObserver;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+import org.springframework.beans.factory.annotation.Autowired;
 import ru.tms.services.ProjectService;
 import ru.tms.dto.ProjectDto;
 import ru.tms.components.ReloadPage;
@@ -29,11 +30,12 @@ import ru.tms.components.ReloadPage;
 @PageTitle("Projects")
 public class ProjectsView extends VerticalLayout implements LocaleChangeObserver {
 
-    private final ProjectService projectService;
+    @Autowired
+    private final ProjectService projectServiceClient;
     private Grid<ProjectDto> grid;
 
-    public ProjectsView(ProjectService projectService) {
-        this.projectService = projectService;
+    public ProjectsView(ProjectService projectServiceClient) {
+        this.projectServiceClient = projectServiceClient;
         init();
     }
 
@@ -73,7 +75,7 @@ public class ProjectsView extends VerticalLayout implements LocaleChangeObserver
                     "",
                     getTranslation("remove"),
                     () -> {
-                        projectService.deleteProject(project.getId());
+                        projectServiceClient.deleteProject(project.getId());
                         refresh();
                     });
             confirmDialog.open();
@@ -119,7 +121,7 @@ public class ProjectsView extends VerticalLayout implements LocaleChangeObserver
                 public void onComponentEvent(ClickEvent<Button> buttonClickEvent) {
                     binder.validate();
                     if (binder.writeBeanIfValid(projectDto)) {
-                        projectService.updateProject(project.getId(), projectDto);
+                        projectServiceClient.updateProject(project.getId(), projectDto);
                         window.close();
                         refresh();
                     }
@@ -167,7 +169,7 @@ public class ProjectsView extends VerticalLayout implements LocaleChangeObserver
                 public void onComponentEvent(ClickEvent<Button> buttonClickEvent) {
                     binder.validate();
                     if (binder.writeBeanIfValid(projectDto)) {
-                        projectService.createProject(projectDto);
+                        projectServiceClient.createProject(projectDto);
                         window.close();
                         refresh();
                     }
@@ -179,7 +181,7 @@ public class ProjectsView extends VerticalLayout implements LocaleChangeObserver
     }
 
     void refresh() {
-        grid.setItems(projectService.getAllProjects());
+        grid.setItems(projectServiceClient.getProjects());
     }
 
     @Override

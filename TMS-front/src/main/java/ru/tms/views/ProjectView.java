@@ -159,14 +159,10 @@ public class ProjectView extends VerticalLayout implements HasUrlParameterMappin
         selectedItems.forEach(parentWebModel -> {
             if (parentWebModel instanceof TestWebModel) {
                 Test test = ((TestWebModel) parentWebModel).getTest();
-                if (testService.getTestById(test.getId()) != null) {
-                    testService.deleteTest(test.getId());
-                }
+                testService.deleteTest(test.getId());
             } else {
                 Suite suite = ((SuiteWebModel) parentWebModel).getSuite();
-                if (suiteService.getSuiteById(suite.getId()) != null) {
-                    suiteService.deleteSuite(((SuiteWebModel) parentWebModel).getSuite().getId());
-                }
+                suiteService.deleteSuite(suite.getId());
             }
         });
         refresh();

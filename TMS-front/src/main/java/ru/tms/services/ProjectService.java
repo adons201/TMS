@@ -1,70 +1,65 @@
 package ru.tms.services;
 
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.stereotype.Service;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.client.RestClient;
 import ru.tms.dto.ProjectDto;
+import ru.tms.services.client.ProjectClient;
 
-import java.util.Collections;
 import java.util.List;
-import java.util.Map;
-import java.util.NoSuchElementException;
 
-@Service
-public class ProjectService {
+@RequiredArgsConstructor
+public class ProjectService implements ProjectClient {
 
-    private final WebClientServiceBack webClientService;
+    private final RestClient restClient;
 
-    public ProjectService(WebClientServiceBack webClientService) {
-        this.webClientService = webClientService;
+    @Override
+    public List<ProjectDto> getProjects() {
+        return this.restClient.get()
+                .uri("/api/projects")
+                .retrieve()
+                .body(new ParameterizedTypeReference<List<ProjectDto>>(){});
     }
 
-    public List<ProjectDto> getAllProjects() {
-        return webClientService.sendRequest("/api/projects",
-                WebClientServiceBack.HttpMethod.GET,
-                null,
-                null,
-                new ParameterizedTypeReference<List<ProjectDto>>(){},
-                Collections.emptyList());
+    @Override
+    public ProjectDto getProject(Long projectId) {
+        return this.restClient.get()
+                .uri("/api/project/{projectId}", projectId)
+                .retrieve()
+                .body(ProjectDto.class);
     }
 
-    public ProjectDto getProjectById(Long projectId) throws NoSuchElementException {
-        return webClientService.sendRequest("/api/project/{projectId}",
-                WebClientServiceBack.HttpMethod.GET,
-                Map.of("projectId", projectId),
-                null,
-                ProjectDto.class,
-                null);
+    @Override
+    public ProjectDto createProject(ProjectDto projectDto) {
+        return this.restClient.post()
+                .uri("/api/project")
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(projectDto)
+                .retrieve()
+                .body(ProjectDto.class);
     }
 
-    public synchronized ProjectDto createProject(ProjectDto projectDto) {
-        return webClientService.sendRequest("/api/project",
-                WebClientServiceBack.HttpMethod.POST,
-                null,
-                projectDto,
-                ProjectDto.class,
-                null);
-    }
-
-    public synchronized ProjectDto updateProject(Long projectId, ProjectDto projectDto) {
-        ProjectDto project = getProjectById(projectId);
+    @Override
+    public ProjectDto updateProject(Long projectId, ProjectDto projectDto) {
+        ProjectDto project = getProject(projectId);
         project.setTitle(projectDto.getTitle());
         project.setDescription(projectDto.getDescription());
-        return webClientService.sendRequest("/api/project/{projectId}",
-                WebClientServiceBack.HttpMethod.PUT,
-                Map.of("projectId", projectId),
-                project,
-                ProjectDto.class,
-                null);
+        return this.restClient.put()
+                .uri("/api/project/{projectId}", projectId)
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(projectDto)
+                .retrieve()
+                .body(ProjectDto.class);
     }
 
-    public synchronized void deleteProject(Long projectId) {
-        ProjectDto project = webClientService.sendRequest("/api/project/{projectId}",
-                WebClientServiceBack.HttpMethod.DELETE,
-                Map.of("projectId", projectId),
-                null,
-                ProjectDto.class,
-                null);
+    @Override
+    public ResponseEntity<Void> deleteProject(Long projectId) {
+        return this.restClient.delete()
+                .uri("/api/project/{projectId}", projectId)
+                .retrieve()
+                .toBodilessEntity();
     }
-
 }

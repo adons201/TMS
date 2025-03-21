@@ -1,81 +1,69 @@
 package ru.tms.services;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.stereotype.Service;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.client.RestClient;
 import ru.tms.components.Test;
 import ru.tms.dto.TestDto;
+import ru.tms.services.client.TestClient;
 
 import java.util.*;
 
-@Service
-public class TestService {
+@RequiredArgsConstructor
+public class TestService implements TestClient {
 
-    private final WebClientServiceBack webClientService;
+    private final RestClient restClient;
 
-    public TestService(WebClientServiceBack webClientServiceBack) {
-        this.webClientService = webClientServiceBack;
-    }
-
-    public Test getTestById(Long testId) throws NoSuchElementException {
-        return webClientService.sendRequest("/api/test/{testId}",
-                WebClientServiceBack.HttpMethod.GET,
-                Map.of("testId", testId),
-                null,
-                Test.class,
-                null);
-    }
-
+    @Override
     public List<Test> getAllTestByProjectId(Long projectId) {
-        return webClientService.sendRequest("/api/test/projectId/{projectId}",
-                WebClientServiceBack.HttpMethod.GET,
-                Map.of("projectId", projectId),
-                null,
-                new ParameterizedTypeReference<List<Test>>(){},
-                Collections.emptyList());
+        return this.restClient.get()
+                .uri("/api/test/projectId/{projectId}", projectId)
+                .retrieve()
+                .body(new ParameterizedTypeReference<List<Test>>(){});
     }
 
     public List<Test> getAllTestBySuiteId(Long suiteId) {
-        return webClientService.sendRequest("/api/test/suiteId/{suiteId}",
-                WebClientServiceBack.HttpMethod.GET,
-                Map.of("suiteId", suiteId),
-                null,
-                new ParameterizedTypeReference<List<Test>>(){},
-                Collections.emptyList());
+        return this.restClient.get()
+                .uri("/api/test/suiteId/{suiteId}", suiteId)
+                .retrieve()
+                .body(new ParameterizedTypeReference<List<Test>>(){});
     }
 
-    public List<Test> getTestsInParentSuiteAndChildSuites(Long suiteId) {
-        return webClientService.sendRequest("/api/test/suiteIdAndChild/{suiteId}/",
-                WebClientServiceBack.HttpMethod.GET,
-                Map.of("suiteId", suiteId),
-                null,
-                new ParameterizedTypeReference<List<Test>>(){},
-                Collections.emptyList());
+    @Override
+    public Test getTest(Long testId) {
+        return this.restClient.get()
+                .uri("/api/test/{testId}", testId)
+                .retrieve()
+                .body(Test.class);
     }
 
-    public synchronized Test createTest(TestDto testDto) {
-        return webClientService.sendRequest("/api/test",
-                WebClientServiceBack.HttpMethod.POST,
-                null,
-                testDto,
-                Test.class,
-                null);
+    @Override
+    public Test createTest(TestDto testDto) {
+        return this.restClient.post()
+                .uri("/api/test")
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(testDto)
+                .retrieve()
+                .body(Test.class);
     }
 
-    public synchronized void deleteTest(Long testId) {
-        TestDto test = webClientService.sendRequest("/api/test/{testId}",
-                WebClientServiceBack.HttpMethod.DELETE,
-                Map.of("testId", testId),
-                null,
-                TestDto.class,
-                null);
+    @Override
+    public Test updateTest(Long testId, TestDto testDto) {
+        return this.restClient.put()
+                .uri("/api/test/{testId}", testDto)
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(testDto)
+                .retrieve()
+                .body(Test.class);
     }
 
-    public synchronized Test updateTest(Long testId, TestDto testDto) {
-        return webClientService.sendRequest("/api/test/{testId}",
-                WebClientServiceBack.HttpMethod.PUT,
-                Map.of("testId", testId),
-                testDto,
-                Test.class,
-                null);
+    @Override
+    public ResponseEntity<Void> deleteTest(Long testId) {
+        return this.restClient.delete()
+                .uri("/api/test/{testId}", testId)
+                .retrieve()
+                .toBodilessEntity();
     }
 }
