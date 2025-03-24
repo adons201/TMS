@@ -1,5 +1,17 @@
+name: tms
 version: "3.9"
 services:
+  tms-keycloak:
+    image: quay.io/keycloak/keycloak:23.0.4
+    ports:
+      - "8083:8083"
+    environment:
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+      KC_HTTP_PORT: 8083
+    volumes:
+      - ./config/keycloak/import:/opt/keycloak/data/import
+    command: start-dev --import-realm
   postgres:
     image: postgres:14.8-alpine3.18
     environment:
@@ -16,11 +28,67 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
-  tms-backend:
-    image: tms-backend
-    build:
-      context: TMS-backend
+  redis:
+    image: redis:latest
+    container_name: tms-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    restart: always
     environment:
+      REDIS_PASSWORD: pass
+      command: redis-server --requirepass pass
+  #Сервисы
+  config-server:
+    container_name: tms-config-server
+    restart: always
+    build:
+      dockerfile: Dockerfile
+      args:
+        JAR_FILE: config-server/target/config-server-0.0.2-SNAPSHOT-exec.jar
+    environment:
+      SPRING_PROFILES_ACTIVE: native
+      SPRING_CLOUD_CONFIG_SERVER_NATIVE_SEARCH_LOCATIONS: file:///config/{application}/{profile}
+    volumes:
+      - './config/cloud:/config'
+    ports:
+      - '8888:8888'
+  eureka-server:
+    container_name: tms-eureka-server
+    restart: always
+    build:
+      dockerfile: Dockerfile
+      args:
+        JAR_FILE: eureka-server/target/eureka-server-0.0.2-SNAPSHOT-exec.jar
+    ports:
+      - '8002:8002'
+  api-gateway:
+    container_name: api-gateway
+    restart: always
+    build:
+      dockerfile: Dockerfile
+      args:
+        JAR_FILE: api-gateway/target/api-gateway-0.0.2-SNAPSHOT-exec.jar
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+    ports:
+      - '8006:8006'
+    deploy:
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+        window: 60s
+  tms-backend:
+    container_name: tms-backend
+    restart: always
+    build:
+      dockerfile: Dockerfile
+      args:
+        JAR_FILE: TMS-backend/target/TMS-backend-0.0.2-SNAPSHOT-exec.jar
+    environment:
+      SPRING_PROFILES_ACTIVE: doсker, gateway
       DB_URL: "jdbc:postgresql://postgres:5432/postgres"
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/postgres
       SPRING_DATASOURCE_USERNAME: postgres
@@ -36,27 +104,17 @@ services:
         delay: 5s
         max_attempts: 3
         window: 120s
-  redis:
-    image: redis:latest
-    container_name: tms-redis
-    ports:
-      - "6379:6379"
-    volumes:
-      - redis_data:/data
+  tms-front:
+    container_name: tms-front
     restart: always
+    build:
+      dockerfile: Dockerfile
+      args:
+        JAR_FILE: TMS-front/target/TMS-front-0.0.2-SNAPSHOT-exec.jar
     environment:
-      REDIS_PASSWORD: pass
-      command: redis-server --requirepass pass
-  tms-keycloak:
-    image: quay.io/keycloak/keycloak:23.0.4
+      SPRING_PROFILES_ACTIVE: docker
     ports:
-      - "8083:8080"
-    environment:
-      KEYCLOAK_ADMIN: admin
-      KEYCLOAK_ADMIN_PASSWORD: admin
-    volumes:
-      - ./config/keycloak/import:/opt/keycloak/data/import
-    command: ["start-dev"]
+      - '8000:8000'
 volumes:
   data_postgres:
   redis_data:

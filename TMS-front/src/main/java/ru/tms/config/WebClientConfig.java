@@ -7,9 +7,6 @@ import org.springframework.cloud.client.loadbalancer.LoadBalancerInterceptor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Scope;
-import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
-import org.springframework.security.oauth2.client.web.DefaultOAuth2AuthorizedClientManager;
-import org.springframework.security.oauth2.client.web.OAuth2AuthorizedClientRepository;
 import org.springframework.web.client.RestClient;
 import ru.tms.security.OAuthClientHttpRequestInterceptor;
 import ru.tms.services.ProjectService;
@@ -26,18 +23,9 @@ public class WebClientConfig {
 
         @Bean
         @Scope("prototype")
-        public RestClient.Builder tmsServicesRestClientBuilder(
-                ClientRegistrationRepository clientRegistrationRepository,
-                OAuth2AuthorizedClientRepository authorizedClientRepository,
-                LoadBalancerClient loadBalancerClient,
-                @Value("${tms.services.back.registration-id}") String registrationId
-        ) {
+        public RestClient.Builder tmsServicesRestClientBuilder() {
             return RestClient.builder()
-                    .requestInterceptor(
-                            new OAuthClientHttpRequestInterceptor(
-                                    new DefaultOAuth2AuthorizedClientManager(clientRegistrationRepository,
-                                            authorizedClientRepository), registrationId))
-                    ;
+                    .requestInterceptor(new OAuthClientHttpRequestInterceptor());
         }
     }
 
@@ -48,18 +36,11 @@ public class WebClientConfig {
         @Bean
         @Scope("prototype")
         public RestClient.Builder tmsServicesRestClientBuilder(
-                ClientRegistrationRepository clientRegistrationRepository,
-                OAuth2AuthorizedClientRepository authorizedClientRepository,
-                LoadBalancerClient loadBalancerClient,
-                @Value("${tms.services.back.registration-id}") String registrationId
+                LoadBalancerClient loadBalancerClient
         ) {
             return RestClient.builder()
                     .requestInterceptor(new LoadBalancerInterceptor(loadBalancerClient))
-                    .requestInterceptor(
-                            new OAuthClientHttpRequestInterceptor(
-                                    new DefaultOAuth2AuthorizedClientManager(clientRegistrationRepository,
-                                            authorizedClientRepository), registrationId))
-            ;
+                    .requestInterceptor(new OAuthClientHttpRequestInterceptor());
         }
 
     }

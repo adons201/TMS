@@ -1,7 +1,5 @@
 package ru.tms.security;
 
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpRequest;
 import org.springframework.http.client.ClientHttpRequestExecution;
@@ -15,8 +13,6 @@ import org.springframework.security.oauth2.server.resource.authentication.JwtAut
 
 import java.io.IOException;
 
-@Setter
-@RequiredArgsConstructor
 public class OAuthClientHttpRequestInterceptor implements ClientHttpRequestInterceptor {
 
     private SecurityContextHolderStrategy securityContextHolderStrategy =
