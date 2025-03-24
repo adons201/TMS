@@ -1,0 +1,11 @@
+server:
+  port: 8006
+spring:
+  application:
+    name: api-gateway
+  config:
+    import: 'optional:configserver:'
+  cloud:
+    config:
+      uri: http://localhost:8888
+      fail-fast: true

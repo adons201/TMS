@@ -1,0 +1,13 @@
+server:
+  port: 8000
+  forward-headers-strategy: native
+spring:
+  application:
+    name: tms-front
+  config:
+    import: 'optional:configserver:'
+  cloud:
+    config:
+      uri: http://localhost:8888
+      fail-fast: true
+      profile: docker

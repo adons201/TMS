@@ -1,0 +1,30 @@
+tms:
+  services:
+    back:
+      url: lb://tms-back
+      registration-id: keycloak
+spring:
+  mustache:
+    check-template-location: false
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://tms-keycloak:8083/realms/tms
+logging:
+  level:
+    org:
+      springframework:
+        security: debug
+        web: debug
+vaadin:
+  allowed-packages:
+    -com.vaadin
+    -org.vaadin
+    -ru.tms
+eureka:
+  client:
+    service-url:
+      defaultZone: http://eureka-server:8002/eureka/
+  instance:
+    ip-address: true
