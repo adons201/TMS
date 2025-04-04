@@ -1,7 +1,6 @@
-package ru.tms.dto;
+package ru.tms.front.dto;
 
 import lombok.Data;
-import ru.tms.components.Suite;
 import ru.tms.components.Test;
 
 import java.util.Collection;
@@ -11,13 +10,13 @@ import java.util.List;
 public class SuiteChild {
 
     private String name;
-    private Suite suite;
+    private SuiteDto suite;
     private List<SuiteChild> childSuites;
-    private List<Suite> allChildren;
-    private Collection<Test> tests;
+    private List<SuiteDto> allChildren;
+    private Collection<TestDto> tests;
 
-    public SuiteChild(Suite suite, List<SuiteChild> childSuites,List<Suite> allChildren, Collection<Test> tests) {
-        this.suite = suite;;
+    public SuiteChild(SuiteDto suite, List<SuiteChild> childSuites,List<SuiteDto> allChildren, Collection<TestDto> tests) {
+        this.suite = suite;
         this.childSuites = childSuites;
         this.allChildren = allChildren;
         this.tests = tests;

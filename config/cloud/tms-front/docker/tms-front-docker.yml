@@ -10,7 +10,7 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          issuer-uri: http://tms-keycloak:8083/realms/tms
+          issuer-uri: http://localhost:8083/realms/tms
 logging:
   level:
     org:
@@ -25,6 +25,6 @@ vaadin:
 eureka:
   client:
     service-url:
-      defaultZone: http://eureka-server:8002/eureka/
+      defaultZone: http://localhost:8002/eureka/
   instance:
     ip-address: true

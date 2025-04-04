@@ -1,4 +1,4 @@
-package ru.tms.dto;
+package ru.tms.front.dto;
 
 import lombok.Data;
 import ru.tms.components.Step;
@@ -8,6 +8,7 @@ import java.util.List;
 @Data
 public class TestDto {
 
+    private Long id;
     private String title;
     private String status;
     private String description;
