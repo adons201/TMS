@@ -4,7 +4,8 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.web.bind.annotation.*;
 import ru.tms.dto.ProjectDto;
-import ru.tms.services.ProjectService;
+import ru.tms.mappers.ProjectMapper;
+import ru.tms.services.ProjectServiceImpl;
 
 import java.util.Collection;
 
@@ -13,40 +14,42 @@ import java.util.Collection;
 @Tag(name = "Project", description = "the Project in TMS API")
 public class ProjectController {
 
-    private final ProjectService projectService;
+    private final ProjectServiceImpl projectServiceImpl;
+    private final ProjectMapper projectMapper;
 
-    public ProjectController(ProjectService projectService) {
-        this.projectService = projectService;
+    public ProjectController(ProjectServiceImpl projectServiceImpl, ProjectMapper projectMapper) {
+        this.projectServiceImpl = projectServiceImpl;
+        this.projectMapper = projectMapper;
     }
 
     @Operation(summary = "Get all Projects", description = "Return all Projects", tags = {"Project"})
     @GetMapping(value = "/projects")
     public Collection<ProjectDto> getAllProjects() {
-        return projectService.getAllProjects();
+        return projectServiceImpl.getAllProjects();
     }
 
     @Operation(summary = "Add Project", description = "Return created Project", tags = {"Project"})
     @PostMapping(value = "/project", consumes = "application/json")
     public ProjectDto createProject(@RequestBody ProjectDto projectDto) {
-        return projectService.createProject(projectDto);
+        return projectServiceImpl.createProject(projectDto);
     }
 
     @Operation(summary = "Update Project", description = "Return updated Project", tags = {"Project"})
     @PutMapping(value = "/project/{projectId}", consumes = "application/json")
     public ProjectDto updateProject(@PathVariable Long projectId, @RequestBody ProjectDto projectDto) {
-        return projectService.updateProject(projectId, projectDto);
+        return projectServiceImpl.updateProject(projectId, projectDto);
     }
 
     @Operation(summary = "Delete Project", description = "Deletes the Project", tags = {"Project"})
     @DeleteMapping(value = "/project/{projectId}")
     public void deleteProject(@PathVariable Long projectId) {
-        projectService.deleteProject(projectId);
+        projectServiceImpl.deleteProject(projectId);
     }
 
     @Operation(summary = "Get Project by Id", description = "Return Project", tags = {"Project"})
     @GetMapping(value = "/project/{projectId}")
     public ProjectDto getProject(@PathVariable Long projectId) {
-        return projectService.getProjectById(projectId);
+        return projectMapper.toDto(projectServiceImpl.getProjectById(projectId));
     }
 
 }

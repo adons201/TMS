@@ -18,7 +18,7 @@ import static java.lang.System.setProperty;
 
 @SpringBootApplication(exclude = ErrorMvcAutoConfiguration.class)
 @ComponentScan({"ru.tms.*"})
-@Theme(value = "TMS-front")
+//@Theme(value = "TMS-front")
 @PWA(name = "TMS-front", shortName = "TMS")
 @EnableDiscoveryClient
 public class TmsFrontApplication extends SpringBootServletInitializer implements VaadinServiceInitListener,

@@ -1,14 +1,13 @@
 package ru.tms.entity;
 
 import jakarta.persistence.*;
-import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 
 @Entity
 @Table
-@Getter(AccessLevel.PUBLIC)
-@Setter(AccessLevel.PUBLIC)
+@Getter
+@Setter
 public class Project {
 
     @Id

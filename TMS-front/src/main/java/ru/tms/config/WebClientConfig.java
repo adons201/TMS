@@ -9,9 +9,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Scope;
 import org.springframework.web.client.RestClient;
 import ru.tms.security.OAuthClientHttpRequestInterceptor;
-import ru.tms.services.ProjectService;
-import ru.tms.services.SuiteService;
-import ru.tms.services.TestService;
+import ru.tms.services.*;
 
 @Configuration
 public class WebClientConfig {
@@ -70,4 +68,19 @@ public class WebClientConfig {
                 .build());
     }
 
+    @Bean
+    public LogoutService logoutServiceClient(@Value("${tms.services.api-gateway.url}") String apiGatewayUrl,
+                                             RestClient.Builder tmsRestClientBuilder) {
+        return new LogoutService(tmsRestClientBuilder
+                .baseUrl(apiGatewayUrl)
+                .build());
+    }
+
+    @Bean
+    public CommentService commentServiceClient(@Value("${tms.services.comment.url}/tms_comment") String commentUrl,
+                                               RestClient.Builder tmsRestClientBuilder) {
+        return new CommentService(tmsRestClientBuilder
+                .baseUrl(commentUrl)
+                .build());
+    }
 }

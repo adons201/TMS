@@ -16,6 +16,7 @@ import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.select.Select;
+import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.component.treegrid.TreeGrid;
 import com.vaadin.flow.data.binder.Binder;
@@ -23,10 +24,12 @@ import com.vaadin.flow.i18n.LocaleChangeEvent;
 import com.vaadin.flow.i18n.LocaleChangeObserver;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+import ru.tms.dto.ProjectDto;
+import ru.tms.dto.TestDto;
+import ru.tms.services.CommentService;
+import ru.tms.services.ProjectService;
 import ru.tms.services.SuiteService;
 import ru.tms.services.TestService;
-import ru.tms.components.Suite;
-import ru.tms.components.Test;
 import ru.tms.dto.SuiteDto;
 import ru.tms.components.ReloadPage;
 import ru.tms.components.CreateTestComponent;
@@ -53,16 +56,23 @@ public class ProjectView extends VerticalLayout implements HasUrlParameterMappin
     private final HorizontalLayout removeAction;
     private final HorizontalLayout projectAction;
     private Button removeButton;
-    private Long projectId;
+    private ProjectDto projectDto;
+    private final ProjectService projectService;
     private final SuiteService suiteService;
     private final TestService testService;
-    private List<Suite> allSuites;
+    private final CommentService commentServiceClient;
+    private List<SuiteDto> allSuites;
     private final VerticalLayout body = new VerticalLayout();
     private List<ParentWebModel> allHierarchy;
+    private static final int ROW_HEIGHT_PX = 70;
+    private static final int MAX_ROW = 10;
 
-    public ProjectView(SuiteService suiteService, TestService testService) {
+    public ProjectView(ProjectService projectService, SuiteService suiteService, TestService testService,
+                       CommentService commentServiceClient) {
+        this.projectService = projectService;
         this.suiteService = suiteService;
         this.testService = testService;
+        this.commentServiceClient = commentServiceClient;
         setWidthFull();
         setHeightFull();
         Button createSuiteButton = createSuiteButton();
@@ -83,13 +93,13 @@ public class ProjectView extends VerticalLayout implements HasUrlParameterMappin
         action.add(createSuiteButton, createTestButton, removeAction);
         add(projectAction, action);
         add(body);
-
     }
 
     @UrlParameter(name = "projectId")
-    public void setProjectId(Long projectId) {
-        this.projectId = projectId;
-        projectAction.add(new H2(getTranslation("project").concat(projectId.toString())));
+    public void setProject(Long projectId) {
+        this.projectDto = this.projectService.getProject(projectId);
+        projectAction.add(new H2(getTranslation("project").concat(" id_" + this.projectDto.getId() + " "
+                + this.projectDto.getTitle())));
         refresh();
     }
 
@@ -98,18 +108,26 @@ public class ProjectView extends VerticalLayout implements HasUrlParameterMappin
         removeButton = new Button();
         removeButton.setVisible(false);
         removeAction.add(removeButton);
-        allHierarchy = suiteService.getSuiteHierarchyNew(projectId);
-        allSuites = new ArrayList<>(suiteService.getAllSuitesByProject(projectId));
+        allHierarchy = suiteService.getSuiteHierarchyNew(this.projectDto.getId());
+        allSuites = new ArrayList<>(suiteService.getAllSuitesByProject(this.projectDto.getId()));
         createTestButton.setVisible(!allHierarchy.isEmpty());
         body.removeAll();
         TreeGrid<ParentWebModel> grid = buildGrid();
         body.add(grid);
+
+        TextArea projectDescription = new TextArea(getTranslation("projectsDescription"));
+        projectDescription.setValue(this.projectDto.getDescription());
+        projectDescription.setReadOnly(true);
+        projectDescription.getElement().getStyle().set("width", "45%");
+
+        body.add(grid, projectDescription, new CommentView(commentServiceClient, "project",
+                projectDto.getId(), "Adons201"));
     }
 
     private TreeGrid<ParentWebModel> buildGrid() {
         ExplorerTreeGrid<ParentWebModel> grid = new ExplorerTreeGrid<>();
         SuiteChildData suiteChildData = new SuiteChildData(allHierarchy);
-        grid.setItems(suiteChildData.getRootChild(), suiteChildData::getChildren);
+
         grid.addComponentHierarchyColumn(value -> {
             Icon icon = VaadinIcon.FOLDER_OPEN.create();
             HorizontalLayout horizontalLayout = new HorizontalLayout();
@@ -124,10 +142,14 @@ public class ProjectView extends VerticalLayout implements HasUrlParameterMappin
             horizontalLayout.addAndExpand(icon, new NativeLabel(value.getName()), action);
             return horizontalLayout;
         });
-        grid.setSizeFull();
-        grid.setMinHeight("800px");
+
+        int rowCount = suiteChildData.getRootChild().size()+1;
+        grid.setHeight(rowCount * ROW_HEIGHT_PX + "px");
+        grid.setMaxHeight(MAX_ROW * ROW_HEIGHT_PX + "px");
+        grid.setItems(suiteChildData.getRootChild(), suiteChildData::getChildren);
         grid.setSelectionMode(Grid.SelectionMode.MULTI);
         grid.expand(suiteChildData.getRootChild());
+
         grid.asMultiSelect().addSelectionListener(selectionEvent -> {
             Set<ParentWebModel> allSelectedItems = selectionEvent.getAllSelectedItems();
             if (!allSelectedItems.isEmpty()) {
@@ -158,10 +180,10 @@ public class ProjectView extends VerticalLayout implements HasUrlParameterMappin
     private void deleteItems(Set<ParentWebModel> selectedItems) {
         selectedItems.forEach(parentWebModel -> {
             if (parentWebModel instanceof TestWebModel) {
-                Test test = ((TestWebModel) parentWebModel).getTest();
+                TestDto test = ((TestWebModel) parentWebModel).getTest();
                 testService.deleteTest(test.getId());
             } else {
-                Suite suite = ((SuiteWebModel) parentWebModel).getSuite();
+                SuiteDto suite = ((SuiteWebModel) parentWebModel).getSuite();
                 suiteService.deleteSuite(suite.getId());
             }
         });
@@ -206,14 +228,14 @@ public class ProjectView extends VerticalLayout implements HasUrlParameterMappin
             binder.forField(title).asRequired().bind(SuiteDto::getName, SuiteDto::setName);
             TextField description = new TextField("Description");
             binder.forField(description).bind(SuiteDto::getDescription, SuiteDto::setDescription);
-            suiteDto.setProjectId(suite.getSuite().getProject().getId());
+            suiteDto.setProjectId(suite.getSuite().getProjectId());
             title.setValue(suite.getSuite().getName());
             description.setValue(suite.getSuite().getDescription());
             Select<SuiteDiv> select = new Select<>();
             select.setLabel("Parent suite");
             Collection<SuiteDiv> suiteList = new LinkedList<>();
             allSuites.forEach(x -> {
-                suiteList.add(new SuiteDiv(x));
+                suiteList.add(new SuiteDiv(x, suiteService.suiteAllParent(x.getProjectId(), x.getId())));
             });
             suiteList.removeIf(suiteDiv -> suiteDiv.getId().equals(suite.getSuite().getId()));
             suite.getChildrenSuites().forEach(x -> {
@@ -222,7 +244,7 @@ public class ProjectView extends VerticalLayout implements HasUrlParameterMappin
             select.setItemLabelGenerator(SuiteDiv::getAllTitle);
             select.setItems(suiteList);
             if (suite.getSuite().getParentId() != null) {
-                select.setValue(suiteList.stream().filter(x -> x.getId().equals(suite.getSuite().getParentId().getId())).findFirst().get());
+                select.setValue(suiteList.stream().filter(x -> x.getId().equals(suite.getSuite().getParentId())).findFirst().get());
             }
             FormLayout gridLayout = new FormLayout();
             gridLayout.add(title, description, select);
@@ -310,13 +332,13 @@ public class ProjectView extends VerticalLayout implements HasUrlParameterMappin
             binder.forField(title).asRequired().bind(SuiteDto::getName, SuiteDto::setName);
             TextField description = new TextField("Description");
             binder.forField(description).bind(SuiteDto::getDescription, SuiteDto::setDescription);
-            suiteDto.setProjectId(projectId);
+            suiteDto.setProjectId(this.projectDto.getId());
             Select<SuiteDiv> select = new Select<>();
             select.setLabel("Parent suite");
             List<SuiteDiv> suiteList = new LinkedList<>();
-            suiteService.getAllSuitesByProject(projectId)
+            suiteService.getAllSuitesByProject(this.projectDto.getId())
                     .forEach(x -> {
-                        suiteList.add(new SuiteDiv(x));
+                        suiteList.add(new SuiteDiv(x, suiteService.suiteAllParent(x.getProjectId(), x.getId())));
                     });
             select.setItemLabelGenerator(SuiteDiv::getAllTitle);
             select.setItems(suiteList);
@@ -355,8 +377,8 @@ public class ProjectView extends VerticalLayout implements HasUrlParameterMappin
         createTest.setIcon(VaadinIcon.PLUS_CIRCLE.create());
         createTest.setText(getTranslation("createTest"));
         createTest.addClickListener(buttonClickEvent -> {
-            CreateTestComponent createTestComponent = new CreateTestComponent(projectId, suiteService, testService,
-                    this::refresh);
+            CreateTestComponent createTestComponent = new CreateTestComponent(this.projectDto.getId(), suiteService
+                    , testService, this::refresh);
         });
         return createTest;
     }

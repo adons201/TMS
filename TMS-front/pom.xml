@@ -85,6 +85,14 @@
             <artifactId>spring-boot-starter-oauth2-resource-server</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-config</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
         </dependency>
@@ -99,14 +107,6 @@
             <artifactId>rapidpm-functional-reactive</artifactId>
             <version>01.00.03-RPM</version>
         </dependency>
-        <dependency>
-            <groupId>org.springframework.cloud</groupId>
-            <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.cloud</groupId>
-            <artifactId>spring-cloud-starter-config</artifactId>
-        </dependency>
     </dependencies>
 
     <build>
@@ -120,12 +120,6 @@
                 <configuration>
                     <wait>500</wait>
                     <maxAttempts>240</maxAttempts>
-                    <excludes>
-                        <exclude>
-                            <groupId>org.projectlombok</groupId>
-                            <artifactId>lombok</artifactId>
-                        </exclude>
-                    </excludes>
                     <classifier>exec</classifier>
                 </configuration>
                 <executions>
@@ -154,7 +148,7 @@
     <profiles>
         <profile>
             <!-- Production mode is activated using -Pproduction -->
-            <id>docker</id>
+            <id>production</id>
             <dependencies>
                 <!-- Exclude development dependencies from production -->
                 <dependency>

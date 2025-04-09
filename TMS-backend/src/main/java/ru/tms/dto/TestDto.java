@@ -1,20 +1,8 @@
 package ru.tms.dto;
 
-import lombok.Data;
-import ru.tms.components.Steps;
 import ru.tms.entity.Step;
 
 import java.util.List;
 
-@Data
-public class TestDto {
-
-    private String title;
-    private String status;
-    private String description;
-    private Long suiteId;
-    private Long projectId;
-    private Boolean automated;
-    private List<Step> steps;
-
-}
+public record TestDto (Long id, String title, String status, String description, Long suiteId
+        , Long projectId, Boolean automated, List<Step> steps) {}

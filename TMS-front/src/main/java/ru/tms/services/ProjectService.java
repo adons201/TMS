@@ -44,9 +44,6 @@ public class ProjectService implements ProjectClient {
 
     @Override
     public ProjectDto updateProject(Long projectId, ProjectDto projectDto) {
-        ProjectDto project = getProject(projectId);
-        project.setTitle(projectDto.getTitle());
-        project.setDescription(projectDto.getDescription());
         return this.restClient.put()
                 .uri("/api/project/{projectId}", projectId)
                 .contentType(MediaType.APPLICATION_JSON)

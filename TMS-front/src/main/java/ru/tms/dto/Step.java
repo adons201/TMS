@@ -1,4 +1,4 @@
-package ru.tms.components;
+package ru.tms.dto;
 
 import lombok.Data;
 

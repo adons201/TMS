@@ -20,7 +20,6 @@ import com.vaadin.flow.i18n.LocaleChangeEvent;
 import com.vaadin.flow.i18n.LocaleChangeObserver;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
-import org.springframework.beans.factory.annotation.Autowired;
 import ru.tms.services.ProjectService;
 import ru.tms.dto.ProjectDto;
 import ru.tms.components.ReloadPage;
@@ -30,7 +29,6 @@ import ru.tms.components.ReloadPage;
 @PageTitle("Projects")
 public class ProjectsView extends VerticalLayout implements LocaleChangeObserver {
 
-    @Autowired
     private final ProjectService projectServiceClient;
     private Grid<ProjectDto> grid;
 
@@ -42,7 +40,7 @@ public class ProjectsView extends VerticalLayout implements LocaleChangeObserver
     public void init() {
         removeAll();
         setSizeFull();
-        add(new H2("Проекты"), createProjectButton());
+        add(new H2(getTranslation("projects")), createProjectButton());
         grid2();
         add(grid);
     }

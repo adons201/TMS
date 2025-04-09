@@ -3,6 +3,10 @@ tms:
     back:
       url: lb://tms-back
       registration-id: keycloak
+    api-gateway:
+      url: lb://api-gateway
+    comment:
+      url: lb://tms-comment
 spring:
   mustache:
     check-template-location: false
@@ -10,7 +14,7 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          issuer-uri: http://localhost:8083/realms/tms
+          issuer-uri: http://172.21.128.1:8083/realms/tms
 logging:
   level:
     org:
@@ -25,6 +29,6 @@ vaadin:
 eureka:
   client:
     service-url:
-      defaultZone: http://localhost:8002/eureka/
+      defaultZone: http://eureka-server:8002/eureka/
   instance:
     ip-address: true

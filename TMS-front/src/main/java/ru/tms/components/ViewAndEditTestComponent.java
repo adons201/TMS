@@ -17,6 +17,7 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.validator.StringLengthValidator;
 import ru.tms.components.vaadin.maxime.MarkdownArea;
+import ru.tms.dto.Step;
 import ru.tms.services.SuiteService;
 import ru.tms.services.TestService;
 import ru.tms.dto.TestDto;
@@ -39,7 +40,7 @@ public class ViewAndEditTestComponent extends Dialog {
     private Map<Step, Binder> stepBinderMap;
     private Runnable actionClose;
 
-    private Test test;
+    private TestDto test;
 
     /**
      * @param test
@@ -47,7 +48,7 @@ public class ViewAndEditTestComponent extends Dialog {
      * @param testService
      * @param actionClose
      */
-    public ViewAndEditTestComponent(Test test, SuiteService suiteService, TestService testService,
+    public ViewAndEditTestComponent(TestDto test, SuiteService suiteService, TestService testService,
                                     Runnable actionClose, Boolean isEditable) {
         String titleHeader = getTranslation("viewTest");
         if (isEditable) {
@@ -62,11 +63,12 @@ public class ViewAndEditTestComponent extends Dialog {
         getElement().setAttribute("aria-label", String.format("%s %s", titleHeader, test.getTitle()));
         getElement().getStyle().set("scrolling", "auto");
         testDto = new TestDto();
+        testDto.setId(test.getId());
         testDto.setTitle(test.getTitle());
         testDto.setDescription(test.getDescription());
         testDto.setStatus(test.getStatus());
-        testDto.setSuiteId(test.getSuiteId().getId());
-        testDto.setProjectId(test.getProjectId().getId());
+        testDto.setSuiteId(test.getSuiteId());
+        testDto.setProjectId(test.getProjectId());
         testDto.setAutomated(test.getAutomated());
         testDto.setSteps(test.getSteps());
         binder = new Binder<>();
@@ -78,14 +80,14 @@ public class ViewAndEditTestComponent extends Dialog {
                 .bind(TestDto::getTitle, TestDto::setTitle);
         TextField description = new TextField("Description");
         binder.forField(description).bind(TestDto::getDescription, TestDto::setDescription);
-        testDto.setProjectId(test.getProjectId().getId());
+        testDto.setProjectId(test.getProjectId());
         select = new Select<>();
         select.setRequiredIndicatorVisible(true);
         select.setLabel("Parent Suite");
         List<SuiteDiv> suiteList = new LinkedList<>();
-        suiteService.getAllSuitesByProject(test.getProjectId().getId())
+        suiteService.getAllSuitesByProject(test.getProjectId())
                 .forEach(x -> {
-                    suiteList.add(new SuiteDiv(x));
+                    suiteList.add(new SuiteDiv(x, suiteService.suiteAllParent(x.getProjectId(), x.getId())));
                 });
         select.setItemLabelGenerator(SuiteDiv::getAllTitle);
         select.setItems(suiteList);
@@ -119,7 +121,7 @@ public class ViewAndEditTestComponent extends Dialog {
         add(content);
         cancelSave(isEditable);
         binder.setBean(testDto);
-        select.setValue(suiteList.stream().filter(x -> x.getId().equals(test.getSuiteId().getId())).findFirst().get());
+        select.setValue(suiteList.stream().filter(x -> x.getId().equals(test.getSuiteId())).findFirst().get());
         testDto.getSteps().forEach(step -> {
             renderStep(step, isEditable);
         });

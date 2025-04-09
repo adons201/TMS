@@ -1,4 +1,4 @@
-package ru.tms.front.dto;
+package ru.tms.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

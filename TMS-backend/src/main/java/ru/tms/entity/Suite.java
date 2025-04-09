@@ -1,7 +1,6 @@
 package ru.tms.entity;
 
 import jakarta.persistence.*;
-import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.NotFound;
@@ -11,8 +10,8 @@ import org.hibernate.annotations.OnDeleteAction;
 
 @Entity
 @Table
-@Getter(AccessLevel.PUBLIC)
-@Setter(AccessLevel.PUBLIC)
+@Getter
+@Setter
 public class Suite {
 
     @Id

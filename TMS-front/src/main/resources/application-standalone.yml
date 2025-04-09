@@ -5,6 +5,8 @@ tms:
     back:
       url: http://localhost:8080
       registration-id: keycloak
+    comment:
+      url: http://localhost:8001
 spring:
   application:
     name: tms-front

@@ -1,7 +1,6 @@
-package ru.tms.front.dto;
+package ru.tms.dto;
 
 import lombok.Data;
-import ru.tms.components.Test;
 
 import java.util.Collection;
 import java.util.List;

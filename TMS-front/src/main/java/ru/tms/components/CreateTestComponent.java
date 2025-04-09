@@ -16,6 +16,7 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.validator.StringLengthValidator;
 import ru.tms.components.vaadin.maxime.MarkdownArea;
+import ru.tms.dto.Step;
 import ru.tms.services.SuiteService;
 import ru.tms.services.TestService;
 import ru.tms.dto.TestDto;
@@ -65,7 +66,7 @@ public class CreateTestComponent extends Dialog {
         List<SuiteDiv> suiteList = new LinkedList<>();
         suiteService.getAllSuitesByProject(projectId)
                 .forEach(x -> {
-                    suiteList.add(new SuiteDiv(x));
+                    suiteList.add(new SuiteDiv(x, suiteService.suiteAllParent(x.getProjectId(), x.getId())));
                 });
         select.setItemLabelGenerator(SuiteDiv::getAllTitle);
         select.setItems(suiteList);

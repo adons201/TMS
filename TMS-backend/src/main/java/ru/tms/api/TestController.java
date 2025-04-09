@@ -8,7 +8,8 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.tms.entity.Test;
 import ru.tms.dto.TestDto;
-import ru.tms.services.TestService;
+import ru.tms.mappers.TestMapper;
+import ru.tms.services.TestServiceImpl;
 
 import java.util.Collection;
 import java.util.NoSuchElementException;
@@ -18,18 +19,20 @@ import java.util.NoSuchElementException;
 @Tag(name = "Test", description = "the Test in TMS API")
 public class TestController {
 
-    private TestService testService;
+    private final TestServiceImpl testServiceImpl;
+    private final TestMapper testMapper;
 
-    public TestController(TestService testService) {
-        this.testService = testService;
+    public TestController(TestServiceImpl testServiceImpl, TestMapper testMapper) {
+        this.testServiceImpl = testServiceImpl;
+        this.testMapper = testMapper;
     }
 
     @Operation(summary = "Get all Test in all Suite", description = "Return all Test in all Projects", tags = {"Test"})
     @GetMapping(value = "/test/{id}")
-    public ResponseEntity<Test> getTestById(@PathVariable Long testId) {
+    public ResponseEntity<TestDto> getTestById(@PathVariable Long testId) {
         try {
-            Test test = testService.getById(testId);
-            return new ResponseEntity<>(test, HttpStatus.OK);
+            TestDto testDto = testMapper.toDto(testServiceImpl.getTestById(testId));
+            return new ResponseEntity<>(testDto, HttpStatus.OK);
         } catch (NoSuchElementException e) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
@@ -37,40 +40,37 @@ public class TestController {
 
     @Operation(summary = "Get all Test in all Suite", description = "Return all Test in all Projects", tags = {"Test"})
     @GetMapping(value = "/test/projectId/{projectId}")
-    public Collection<Test> getAllTestByProjectId(@PathVariable Long projectId) {
-        return testService.getAllByProjectId(projectId);
+    public Collection<TestDto> getAllTestByProjectId(@PathVariable Long projectId) {
+        return testServiceImpl.getAllTestsByProjectId(projectId);
     }
 
     @Operation(summary = "Get all Test in Suite", description = "Return all Test in all Projects", tags = {"Test"})
     @GetMapping(value = "/test/suiteId/{suiteId}")
-    public Collection<Test> getAllTestBySuiteId(@PathVariable Long suiteId) {
-        return testService.getAllBySuiteId(suiteId);
+    public Collection<TestDto> getAllTestBySuiteId(@PathVariable Long suiteId) {
+        return testServiceImpl.getAllTestsBySuiteId(suiteId);
     }
 
     @Operation(summary = "Get all Test in Suite and Child Suites", description = "Return all Test in all Projects", tags = {"Test"})
     @GetMapping(value = "/test/suiteIdAndChild/{suiteId}/")
-    public Collection<Test> getTestsInParentSuiteAndChildSuites(@PathVariable Long suiteId) {
-        return testService.getAllAndChildBySuiteId(suiteId);
+    public Collection<TestDto> getTestsInParentSuiteAndChildSuites(@PathVariable Long suiteId) {
+        return testServiceImpl.getAllAndChildBySuiteId(suiteId);
     }
 
     @Operation(summary = "Add Test", description = "Return created Test", tags = {"Test"})
     @PostMapping(value = "/test", consumes = "application/json")
-    public Test createTest(@Validated @RequestBody TestDto testDto) {
-        Test result = testService.insert(testDto);
-        return result;
+    public TestDto createTest(@Validated @RequestBody TestDto testDto) {
+        return testServiceImpl.createTest(testDto);
     }
 
     @Operation(summary = "Update Test", description = "Return updated Test", tags = {"Suite"})
     @PutMapping(value = "/test/{testId}", consumes = "application/json")
-    public Test updateTest(@PathVariable Long testId, @Validated @RequestBody TestDto testDto) {
-        Test result = testService.updateTest(testId, testDto);
-        return result;
+    public TestDto updateTest(@PathVariable Long testId, @Validated @RequestBody TestDto testDto) {
+        return testServiceImpl.updateTest(testId, testDto);
     }
 
     @Operation(summary = "Delete Test", description = "", tags = {"Test"})
     @DeleteMapping(value = "/test/{testId}")
     public void deleteTest(@PathVariable Long testId) {
-        testService.del(testId);
+        testServiceImpl.deleteTest(testId);
     }
-
 }

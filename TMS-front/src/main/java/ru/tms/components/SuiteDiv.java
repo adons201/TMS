@@ -2,23 +2,31 @@ package ru.tms.components;
 
 
 import lombok.Data;
+import ru.tms.dto.SuiteDto;
+
+import java.util.List;
 
 @Data
 public class SuiteDiv {
 
     private String allTitle;
-    private Suite suite;
+    private SuiteDto suite;
+    private Long id;
+    private String title;
+    private String description;
+    private Long projectId;
+    private Long parentId;
 
-    public SuiteDiv(Suite suite) {
+    public SuiteDiv(SuiteDto suite, List<SuiteDto> suitesParent) {
         this.suite = suite;
         id = suite.getId();
         title = suite.getName();
         description = suite.getDescription();
-        projectId = suite.getProject();
+        projectId = suite.getProjectId();
         parentId = suite.getParentId();
         allTitle = "";
-        if (parentId != null) {
-            setTitles(parentId);
+        if (parentId != null && !suitesParent.isEmpty()) {
+            setTitles(suitesParent);
             char uniChar = '\u21b3';
             allTitle += uniChar + " " + title;
 
@@ -27,20 +35,9 @@ public class SuiteDiv {
         }
     }
 
-    private Long id;
-
-    private String title;
-
-    private String description;
-
-    private Project projectId;
-
-    private Suite parentId;
-
-    private void setTitles(Suite parentSuite) {
-        if (parentSuite != null) {
+    private void setTitles(List<SuiteDto> suitesParent) {
+        for(SuiteDto suiteDto: suitesParent){
             this.allTitle += " | ";
-            setTitles(parentSuite.getParentId());
         }
     }
 }

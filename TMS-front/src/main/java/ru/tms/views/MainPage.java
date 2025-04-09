@@ -26,8 +26,10 @@ import com.vaadin.flow.i18n.LocaleChangeObserver;
 import com.vaadin.flow.router.*;
 import com.vaadin.flow.server.VaadinSession;
 import lombok.SneakyThrows;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import ru.tms.components.ReloadPage;
+import ru.tms.services.LogoutService;
 
 import java.util.Arrays;
 import java.util.Optional;
@@ -39,6 +41,7 @@ import java.util.Optional;
 @CssImport("./styles/shared-styles.css")
 @PageTitle("TMS")
 @Route("")
+@RoutePrefix("tms")
 public class MainPage extends AppLayout implements LocaleChangeObserver
 {
 
@@ -48,8 +51,12 @@ public class MainPage extends AppLayout implements LocaleChangeObserver
     private HorizontalLayout header;
     private Component headerContent;
     private UserDetailsService userService;
+    private final LogoutService logoutServiceApiGatewayClient;
+    private final LogoutService logoutServiceTmsFrontClient;
 
-    public MainPage() {
+    public MainPage(LogoutService logoutServiceApiGatewayClient, LogoutService logoutServiceTmsFrontClient) {
+        this.logoutServiceApiGatewayClient = logoutServiceApiGatewayClient;
+        this.logoutServiceTmsFrontClient = logoutServiceTmsFrontClient;
         //setPrimarySection(Section.DRAWER);
         setPrimarySection(Section.NAVBAR);
         headerContent = createHeaderContent();
@@ -57,6 +64,7 @@ public class MainPage extends AppLayout implements LocaleChangeObserver
         menu = createMenu();
         addToDrawer(createDrawerContent(menu));
         this.userService = userService;
+
     }
 
     private Component createHeaderContent() {
@@ -158,7 +166,12 @@ public class MainPage extends AppLayout implements LocaleChangeObserver
     }
 
     private void logout() {
+
         VaadinSession.getCurrent().getSession().invalidate();
+
+        logoutServiceApiGatewayClient.logout();
+        //UI.getCurrent().getPage().setLocation("lb://tms-front/tms/logout");
+        logoutServiceTmsFrontClient.logout();
     }
 
     @Override

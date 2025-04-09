@@ -9,7 +9,7 @@ logging:
 spring:
   data:
     redis:
-      host: localhost
+      host: redis
       port: 6379
       password: pass
       database: 0
@@ -25,8 +25,9 @@ spring:
       client:
         provider:
           keycloak:
-            issuer-uri: http://tms-keycloak:8083/realms/tms
+            issuer-uri: http://172.21.128.1:8083/realms/tms
             user-name-attribute: preferred_username
+            authorization-uri: http://172.21.128.1:8083/realms/tms/protocol/openid-connect/auth
         registration:
           keycloak:
             client-id: tms-front
@@ -64,9 +65,15 @@ spring:
             - Path=/**
           filters:
             - TokenRelay=
+    loadbalancer:
+      ribbon:
+        enabled: false # Отключаем Ribbon, если он есть в classpath
+      retry:
+        enabled: false # Отключаем retry
 eureka:
   client:
     service-url:
       defaultZone: http://eureka-server:8002/eureka/
   instance:
     ip-address: true
+

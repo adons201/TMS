@@ -4,7 +4,6 @@ package ru.tms.entity;
 import jakarta.persistence.*;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
-import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.*;
@@ -14,13 +13,13 @@ import java.util.List;
 
 @Entity
 @Table
-@Getter(AccessLevel.PUBLIC)
-@Setter(AccessLevel.PUBLIC)
+@Getter
+@Setter
 public class Test {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    private Long id;
 
     @Column(nullable = false)
     private String title;
@@ -48,6 +47,4 @@ public class Test {
 
     @JdbcTypeCode(SqlTypes.JSON)
     private List<Step> steps;
-
-
 }

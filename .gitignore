@@ -31,3 +31,4 @@ build/
 
 ### VS Code ###
 .vscode/
+/TMS-front/src/main/frontend/generated/

@@ -3,6 +3,10 @@ tms:
     back:
       url: lb://tms-back
       registration-id: keycloak
+    api-gateway:
+      url: lb://api-gateway
+    comment:
+      url: lb://tms-comment
 spring:
   mustache:
     check-template-location: false

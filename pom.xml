@@ -16,6 +16,7 @@
         <module>api-gateway</module>
         <module>TMS-front</module>
         <module>TMS-backend</module>
+        <module>TMS-comments</module>
     </modules>
 
     <properties>

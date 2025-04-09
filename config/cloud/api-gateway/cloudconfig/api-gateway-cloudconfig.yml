@@ -58,6 +58,12 @@ spring:
             - Path=/api/**
           filters:
             - TokenRelay=
+#        - id: logout_route
+#          uri: lb://tms-front
+#          predicates:
+#            - Path=/tms/logout
+#          filters:
+#            - RewritePath=/tms/logout, /logout
         - id: tms-front
           uri: lb://tms-front
           predicates:
