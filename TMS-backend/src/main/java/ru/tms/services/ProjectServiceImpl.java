@@ -1,6 +1,6 @@
 package ru.tms.services;
 
-import jakarta.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.stereotype.Service;
 import ru.tms.dto.ProjectDto;
 import ru.tms.entity.Project;

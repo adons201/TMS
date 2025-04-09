@@ -1,6 +1,6 @@
 package ru.tms.services;
 
-import jakarta.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.stereotype.Service;
 import ru.tms.dto.SuiteDto;
 import ru.tms.entity.Suite;
@@ -23,22 +23,27 @@ public class SuiteServiceImpl implements SuiteService{
         this.suiteMapper = suiteMapper;
     }
 
+    @Override
     public List<SuiteDto> getAllSuitesByProject(Long projectId) {
         return this.suiteMapper.toDto(this.suiteRepo.findAllSuiteByProject(projectId));
     }
 
+    @Override
     public List<SuiteDto> getAllChildSuitesBySuite(Long suiteId) {
         return this.suiteMapper.toDto(this.suiteRepo.findAllChildSuitesBySuite(suiteId));
     }
 
+    @Override
     public List<SuiteDto> getChildSuitesBySuite(Long suiteId) {
         return this.suiteMapper.toDto(this.suiteRepo.findChildSuitesBySuite(suiteId));
     }
 
+    @Override
     public Suite getSuiteById(Long suiteId) throws NoSuchElementException {
         return this.suiteRepo.findById(suiteId).get();
     }
 
+    @Override
     @Transactional
     public synchronized SuiteDto createSuite(SuiteDto suiteDto) {
         Suite parentSuite = null;
@@ -53,6 +58,7 @@ public class SuiteServiceImpl implements SuiteService{
         return this.suiteMapper.toDto(this.suiteRepo.save(suite));
     }
 
+    @Override
     @Transactional
     public synchronized SuiteDto updateSuite(Long suiteId, SuiteDto suiteDto) {
         Suite suite = getSuiteById(suiteId);
@@ -67,6 +73,7 @@ public class SuiteServiceImpl implements SuiteService{
         return this.suiteMapper.toDto(this.suiteRepo.save(suite));
     }
 
+    @Override
     @Transactional
     public synchronized void deleteSuite(Long suiteId) {
         Suite suite = getSuiteById(suiteId);

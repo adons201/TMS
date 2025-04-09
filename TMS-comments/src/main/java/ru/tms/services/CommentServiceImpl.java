@@ -1,6 +1,8 @@
 package ru.tms.services;
 
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
 import ru.tms.dto.CommentDto;
 import ru.tms.entity.Comment;
 import ru.tms.mappers.CommentMapper;
@@ -31,6 +33,7 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
+    @Transactional
     public CommentDto createComment(CommentDto commentDto) {
         Comment comment = commentMapper.toEntity(commentDto);
         comment.setChanged(false);
@@ -38,6 +41,7 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
+    @Transactional(isolation = Isolation.READ_COMMITTED)
     public CommentDto updateComment(CommentDto commentDto, Long commentId) {
         Comment comment = this.getCommentById(commentId);
         comment.setContent(commentDto.content());
@@ -46,8 +50,10 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
+    @Transactional(isolation = Isolation.READ_COMMITTED)
     public void deleteComment(Long commentId) {
-        commentRepo.deleteById(commentId);
+        Comment comment = this.getCommentById(commentId);
+        commentRepo.deleteById(comment.getId());
     }
 
 }
