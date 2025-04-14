@@ -1,20 +1,20 @@
 package ru.tms.services.client;
 
 import org.springframework.http.ResponseEntity;
-import ru.tms.dto.SuiteDto;
+import ru.tms.dto.Suite;
 
 import java.util.List;
 
 public interface SuiteClient {
 
-    SuiteDto getSuiteById(Long id);
+    Suite getSuiteById(Long id);
 
-    SuiteDto createSuite(SuiteDto suiteDto);
+    Suite createSuite(Suite suite);
 
-    SuiteDto updateSuite(Long id, SuiteDto suiteDto);
+    Suite updateSuite(Long id, Suite suite);
 
     ResponseEntity<Void> deleteSuite(Long id);
 
-    List<SuiteDto> getAllSuitesByProject(Long projectId);
+    List<Suite> getAllSuitesByProject(Long projectId);
 
 }

@@ -83,4 +83,22 @@ public class WebClientConfig {
                 .baseUrl(commentUrl)
                 .build());
     }
+
+    @Bean
+    public SubscriptionService subscriptionServiceClient(
+            @Value("${tms.services.notification.url}/tms_notification") String notificationUrl,
+            RestClient.Builder tmsRestClientBuilder) {
+        return new SubscriptionService(tmsRestClientBuilder
+                .baseUrl(notificationUrl)
+                .build());
+    }
+
+    @Bean
+    public NotificationService notificationServiceClient(
+            @Value("${tms.services.notification.url}/tms_notification") String notificationUrl,
+            RestClient.Builder tmsRestClientBuilder) {
+        return new NotificationService(tmsRestClientBuilder
+                .baseUrl(notificationUrl)
+                .build());
+    }
 }

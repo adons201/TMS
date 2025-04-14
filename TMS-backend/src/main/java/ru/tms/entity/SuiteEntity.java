@@ -9,10 +9,10 @@ import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
 @Entity
-@Table
+@Table(name = "suite")
 @Getter
 @Setter
-public class Suite {
+public class SuiteEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -28,12 +28,12 @@ public class Suite {
     @NotFound(action = NotFoundAction.EXCEPTION)
     @JoinColumn(name = "projectId", nullable = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
-    private Project project;
+    private ProjectEntity project;
 
     @ManyToOne()
     @NotFound(action = NotFoundAction.IGNORE)
     @JoinColumn(name = "parentId")
     @OnDelete(action = OnDeleteAction.CASCADE)
-    private Suite parentId;
+    private SuiteEntity parentId;
 
 }

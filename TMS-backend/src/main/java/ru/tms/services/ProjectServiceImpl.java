@@ -2,8 +2,8 @@ package ru.tms.services;
 
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.stereotype.Service;
-import ru.tms.dto.ProjectDto;
-import ru.tms.entity.Project;
+import ru.tms.dto.Project;
+import ru.tms.entity.ProjectEntity;
 import ru.tms.mappers.ProjectMapper;
 import ru.tms.repo.ProjectRepo;
 
@@ -22,25 +22,25 @@ public class ProjectServiceImpl implements ProjectService{
     }
 
     @Override
-    public List<ProjectDto> getAllProjects() {
+    public List<Project> getAllProjects() {
         return projectMapper.toDto(projectRepo.findAll());
     }
 
     @Override
-    public Project getProjectById(Long id) throws NoSuchElementException {
+    public ProjectEntity getProjectById(Long id) throws NoSuchElementException {
         return projectRepo.findById(id).get();
     }
 
     @Override
     @Transactional
-    public ProjectDto createProject(ProjectDto projectDto) {
-        return projectMapper.toDto(projectRepo.save(this.projectMapper.toEntity(projectDto)));
+    public Project createProject(Project project) {
+        return projectMapper.toDto(projectRepo.save(this.projectMapper.toEntity(project)));
     }
 
     @Override
     @Transactional
-    public ProjectDto updateProject(Long id, ProjectDto projectDto) {
-        return projectMapper.toDto(projectRepo.save(this.projectMapper.toEntity(projectDto)));
+    public Project updateProject(Long id, Project project) {
+        return projectMapper.toDto(projectRepo.save(this.projectMapper.toEntity(project)));
     }
 
     @Override

@@ -6,8 +6,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
-import ru.tms.dto.CommentDto;
-import ru.tms.entity.Comment;
+import ru.tms.dto.Comment;
+import ru.tms.entity.CommentEntity;
 import ru.tms.mappers.CommentMapper;
 import ru.tms.repo.CommentRepo;
 
@@ -37,11 +37,11 @@ class CommentServiceImplTest {
     void shouldReturnCommentWhenFoundById() {
         // Arrange
         Long commentId =1L;
-        Comment expectedComment = new Comment();
+        CommentEntity expectedComment = new CommentEntity();
         when(commentRepo.findById(commentId)).thenReturn(Optional.of(expectedComment));
 
         // Act
-        Comment actualComment = commentService.getCommentById(commentId);
+        CommentEntity actualComment = commentService.getCommentById(commentId);
 
         // Assert
         assertThat(actualComment).isEqualTo(expectedComment);
@@ -55,52 +55,52 @@ class CommentServiceImplTest {
         // Arrange
         String targetType = "project";
         Long targetObjectId = 1L;
-        List<Comment> comments = new ArrayList<>();
-        List<CommentDto> expectedDto = new ArrayList<>();
+        List<CommentEntity> comments = new ArrayList<>();
+        List<Comment> expectedDto = new ArrayList<>();
         when(commentRepo.getByTargetTypeAndTargetObjectIdOrderByCreatedAtDesc(eq(targetType), eq(targetObjectId)))
                 .thenReturn(comments);
         when(commentMapper.toDto(anyList()))
                 .thenAnswer(invocation -> {
-                    List<Comment> inputComments = invocation.getArgument(0);
-                    List<CommentDto> result = new ArrayList<>();
+                    List<CommentEntity> inputComments = invocation.getArgument(0);
+                    List<Comment> result = new ArrayList<>();
 
-                    for (Comment comment : inputComments) {
-                        result.add(new CommentDto(comment.getId(), comment.getContent(), comment.getCreatedAt(),
+                    for (CommentEntity comment : inputComments) {
+                        result.add(new Comment(comment.getId(), comment.getContent(), comment.getCreatedAt(),
                                 comment.getAuthor(), comment.getTargetType(), comment.getTargetObjectId(), comment.getChanged()));
                     }
                     return result;
                 });
 
         // Act
-        List<CommentDto> actualDto = commentService.getAllComments(targetType, targetObjectId);
+        List<Comment> actualDto = commentService.getAllComments(targetType, targetObjectId);
 
         // Assert
         assertThat(actualDto).isEqualTo(expectedDto);
         verify(commentRepo).getByTargetTypeAndTargetObjectIdOrderByCreatedAtDesc(eq(targetType), eq(targetObjectId));
-        verify(commentMapper, times(comments.size())).toDto(any(Comment.class));
+        verify(commentMapper, times(comments.size())).toDto(any(CommentEntity.class));
     }
 
     @Test
     @DisplayName("Должен корректно создать коммент")
     void shouldCreateComment() {
         // Arrange
-        CommentDto commentDto = new CommentDto(1L, "New comment", LocalDateTime.now(),"John Doe", "project", 1L,  false);
-        Comment expectedComment = new Comment();
-        expectedComment.setContent(commentDto.content());
-        expectedComment.setAuthor(commentDto.author());
-        expectedComment.setTargetType(commentDto.targetType());
-        expectedComment.setTargetObjectId(commentDto.targetObjectId());
+        Comment comment = new Comment(1L, "New comment", LocalDateTime.now(),"John Doe", "project", 1L,  false);
+        CommentEntity expectedComment = new CommentEntity();
+        expectedComment.setContent(comment.content());
+        expectedComment.setAuthor(comment.author());
+        expectedComment.setTargetType(comment.targetType());
+        expectedComment.setTargetObjectId(comment.targetObjectId());
         expectedComment.setChanged(false);
-        when(commentMapper.toEntity(commentDto)).thenReturn(expectedComment);
+        when(commentMapper.toEntity(comment)).thenReturn(expectedComment);
         when(commentRepo.save(expectedComment)).thenReturn(expectedComment);
-        when(commentMapper.toDto(expectedComment)).thenReturn(commentDto);
+        when(commentMapper.toDto(expectedComment)).thenReturn(comment);
 
         // Act
-        CommentDto actualDto = commentService.createComment(commentDto);
+        Comment actualDto = commentService.createComment(comment);
 
         // Assert
-        assertThat(actualDto).isEqualTo(commentDto);
-        verify(commentMapper).toEntity(commentDto);
+        assertThat(actualDto).isEqualTo(comment);
+        verify(commentMapper).toEntity(comment);
         verify(commentRepo).save(expectedComment);
         verify(commentMapper).toDto(expectedComment);
     }
@@ -110,8 +110,8 @@ class CommentServiceImplTest {
     void shouldUpdateComment() {
         // Arrange
         Long commentId = 1L;
-        CommentDto commentDto = new CommentDto(1L, "Updated comment", LocalDateTime.now(),"John Doe", "project", 1L,  false);
-        Comment existingComment = new Comment();
+        Comment comment = new Comment(1L, "Updated comment", LocalDateTime.now(),"John Doe", "project", 1L,  false);
+        CommentEntity existingComment = new CommentEntity();
         existingComment.setId(commentId);
         existingComment.setContent("Old comment");
         existingComment.setAuthor("John Doe");
@@ -120,13 +120,13 @@ class CommentServiceImplTest {
         existingComment.setChanged(false);
         when(commentRepo.findById(commentId)).thenReturn(Optional.of(existingComment));
         when(commentRepo.save(existingComment)).thenReturn(existingComment);
-        when(commentMapper.toDto(existingComment)).thenReturn(commentDto);
+        when(commentMapper.toDto(existingComment)).thenReturn(comment);
 
         // Act
-        CommentDto actualDto = commentService.updateComment(commentDto, commentId);
+        Comment actualDto = commentService.updateComment(comment, commentId);
 
         // Assert
-        assertThat(actualDto).isEqualTo(commentDto);
+        assertThat(actualDto).isEqualTo(comment);
         verify(commentRepo).findById(commentId);
         verify(commentRepo).save(existingComment);
         verify(commentMapper).toDto(existingComment);

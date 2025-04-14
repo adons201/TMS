@@ -9,12 +9,12 @@ import java.util.List;
 public class SuiteChild {
 
     private String name;
-    private SuiteDto suite;
+    private Suite suite;
     private List<SuiteChild> childSuites;
-    private List<SuiteDto> allChildren;
-    private Collection<TestDto> tests;
+    private List<Suite> allChildren;
+    private Collection<Test> tests;
 
-    public SuiteChild(SuiteDto suite, List<SuiteChild> childSuites,List<SuiteDto> allChildren, Collection<TestDto> tests) {
+    public SuiteChild(Suite suite, List<SuiteChild> childSuites, List<Suite> allChildren, Collection<Test> tests) {
         this.suite = suite;
         this.childSuites = childSuites;
         this.allChildren = allChildren;

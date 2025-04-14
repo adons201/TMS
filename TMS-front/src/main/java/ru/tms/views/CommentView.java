@@ -11,7 +11,7 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.icon.VaadinIcon;
-import ru.tms.dto.CommentDto;
+import ru.tms.dto.Comment;
 import ru.tms.services.CommentService;
 
 import java.time.LocalDateTime;
@@ -52,7 +52,7 @@ public class CommentView extends Composite<VerticalLayout> {
     }
 
     private void addComment() {
-        commentServiceClient.createComment(CommentDto.builder()
+        commentServiceClient.createComment(Comment.builder()
                 .content(commentInput.getValue())
                 .createdAt(LocalDateTime.now())
                 .targetObjectId(targetId)
@@ -63,11 +63,11 @@ public class CommentView extends Composite<VerticalLayout> {
     }
 
     private void updateComments() {
-        List<CommentDto> comments = commentServiceClient.getAllComments(targetType, targetId);
+        List<Comment> comments = commentServiceClient.getAllComments(targetType, targetId);
         showComments(comments);
     }
 
-    private void showComments(List<CommentDto> comments) {
+    private void showComments(List<Comment> comments) {
         commentsLayout.getElement().getComponent().ifPresent((x)->commentsLayout.removeAll());
         comments.forEach(comment -> {
             Div commentContainer = new Div();
@@ -91,7 +91,7 @@ public class CommentView extends Composite<VerticalLayout> {
         });
     }
 
-    private void openEditor(CommentDto comment) {
+    private void openEditor(Comment comment) {
         TextArea editor = new TextArea();
         editor.setValue(comment.getContent());
         editor.setWidthFull();
@@ -112,7 +112,7 @@ public class CommentView extends Composite<VerticalLayout> {
         dialog.open();
     }
 
-    private void saveEditedComment(CommentDto comment, String editedContent, Dialog dialog) {
+    private void saveEditedComment(Comment comment, String editedContent, Dialog dialog) {
         comment.setContent(editedContent);
         commentServiceClient.updateComment(comment.getId(), comment);
         updateComments();

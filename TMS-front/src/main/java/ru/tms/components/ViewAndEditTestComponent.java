@@ -20,7 +20,7 @@ import ru.tms.components.vaadin.maxime.MarkdownArea;
 import ru.tms.dto.Step;
 import ru.tms.services.SuiteService;
 import ru.tms.services.TestService;
-import ru.tms.dto.TestDto;
+import ru.tms.dto.Test;
 import ru.tms.converters.ConvertSuiteDivToSuiteDto;
 
 import java.util.*;
@@ -29,8 +29,8 @@ import java.util.*;
 public class ViewAndEditTestComponent extends Dialog {
 
     private VerticalLayout verticalStep = new VerticalLayout();
-    private Binder<TestDto> binder;
-    private TestDto testDto;
+    private Binder<Test> binder;
+    private Test test;
     int nextStep = 1;
     private HorizontalLayout action;
     Select<SuiteDiv> select;
@@ -40,15 +40,14 @@ public class ViewAndEditTestComponent extends Dialog {
     private Map<Step, Binder> stepBinderMap;
     private Runnable actionClose;
 
-    private TestDto test;
-
     /**
      * @param test
      * @param suiteService
      * @param testService
      * @param actionClose
+     * @param isEditable
      */
-    public ViewAndEditTestComponent(TestDto test, SuiteService suiteService, TestService testService,
+    public ViewAndEditTestComponent(Test test, SuiteService suiteService, TestService testService,
                                     Runnable actionClose, Boolean isEditable) {
         String titleHeader = getTranslation("viewTest");
         if (isEditable) {
@@ -62,25 +61,25 @@ public class ViewAndEditTestComponent extends Dialog {
         setSizeFull();
         getElement().setAttribute("aria-label", String.format("%s %s", titleHeader, test.getTitle()));
         getElement().getStyle().set("scrolling", "auto");
-        testDto = new TestDto();
-        testDto.setId(test.getId());
-        testDto.setTitle(test.getTitle());
-        testDto.setDescription(test.getDescription());
-        testDto.setStatus(test.getStatus());
-        testDto.setSuiteId(test.getSuiteId());
-        testDto.setProjectId(test.getProjectId());
-        testDto.setAutomated(test.getAutomated());
-        testDto.setSteps(test.getSteps());
+        this.test = new Test();
+        this.test.setId(test.getId());
+        this.test.setTitle(test.getTitle());
+        this.test.setDescription(test.getDescription());
+        this.test.setStatus(test.getStatus());
+        this.test.setSuiteId(test.getSuiteId());
+        this.test.setProjectId(test.getProjectId());
+        this.test.setAutomated(test.getAutomated());
+        this.test.setSteps(test.getSteps());
         binder = new Binder<>();
         VerticalLayout content = new VerticalLayout();
         TextField title = new TextField("Title");
         title.setRequired(true);
         binder.forField(title)
                 .withValidator(new StringLengthValidator(getTranslation("fill"), 1, 200))
-                .bind(TestDto::getTitle, TestDto::setTitle);
+                .bind(Test::getTitle, Test::setTitle);
         TextField description = new TextField("Description");
-        binder.forField(description).bind(TestDto::getDescription, TestDto::setDescription);
-        testDto.setProjectId(test.getProjectId());
+        binder.forField(description).bind(Test::getDescription, Test::setDescription);
+        this.test.setProjectId(test.getProjectId());
         select = new Select<>();
         select.setRequiredIndicatorVisible(true);
         select.setLabel("Parent Suite");
@@ -91,12 +90,12 @@ public class ViewAndEditTestComponent extends Dialog {
                 });
         select.setItemLabelGenerator(SuiteDiv::getAllTitle);
         select.setItems(suiteList);
-        binder.forField(select).withConverter(new ConvertSuiteDivToSuiteDto()).asRequired().bind(TestDto::getSuiteId, TestDto::setSuiteId);
+        binder.forField(select).withConverter(new ConvertSuiteDivToSuiteDto()).asRequired().bind(Test::getSuiteId, Test::setSuiteId);
         Checkbox isAutomated = new Checkbox();
         isAutomated.setLabel("Automated");
-        binder.forField(isAutomated).bind(TestDto::getAutomated, TestDto::setAutomated);
+        binder.forField(isAutomated).bind(Test::getAutomated, Test::setAutomated);
         TextField status = new TextField("Status");
-        binder.forField(status).bind(TestDto::getStatus, TestDto::setStatus);
+        binder.forField(status).bind(Test::getStatus, Test::setStatus);
         action = new HorizontalLayout();
         Button createStep = new Button(getTranslation("createStep"));
         if (isEditable) {
@@ -120,9 +119,9 @@ public class ViewAndEditTestComponent extends Dialog {
         content.add(gridLayout);
         add(content);
         cancelSave(isEditable);
-        binder.setBean(testDto);
+        binder.setBean(this.test);
         select.setValue(suiteList.stream().filter(x -> x.getId().equals(test.getSuiteId())).findFirst().get());
-        testDto.getSteps().forEach(step -> {
+        this.test.getSteps().forEach(step -> {
             renderStep(step, isEditable);
         });
         stepBinderMap.forEach((step, binder1) -> {
@@ -151,10 +150,10 @@ public class ViewAndEditTestComponent extends Dialog {
                         steps.add(entry.getKey());
                     }
                 }
-                testDto.setSteps(steps);
+                test.setSteps(steps);
                 binder.validate();
-                if (binder.writeBeanIfValid(testDto)) {
-                    testService.updateTest(test.getId(), testDto);
+                if (binder.writeBeanIfValid(test)) {
+                    testService.updateTest(test.getId(), test);
                     close();
                     actionClose.run();
                 }

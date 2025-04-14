@@ -1,19 +1,19 @@
 package ru.tms.services.client;
 
 import org.springframework.http.ResponseEntity;
-import ru.tms.dto.CommentDto;
+import ru.tms.dto.Comment;
 
 import java.util.List;
 
 public interface CommentClient {
 
-    CommentDto getComment(Long commentId);
+    Comment getComment(Long commentId);
 
-    List<CommentDto> getAllComments(String targetType, Long targetObjectId);
+    List<Comment> getAllComments(String targetType, Long targetObjectId);
 
-    CommentDto createComment(CommentDto commentDto);
+    Comment createComment(Comment comment);
 
-    CommentDto updateComment(Long commentId, CommentDto commentDto);
+    Comment updateComment(Long commentId, Comment comment);
 
     ResponseEntity<Void> deleteComment(Long commentId);
 

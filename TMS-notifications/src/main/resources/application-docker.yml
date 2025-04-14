@@ -1,0 +1,13 @@
+server:
+  port: 8003
+  forward-headers-strategy: native
+spring:
+  application:
+    name: tms-notification
+  config:
+    import: 'optional:configserver:'
+  cloud:
+    config:
+      uri: http://config-server:8888
+      fail-fast: true
+      profile: doсker

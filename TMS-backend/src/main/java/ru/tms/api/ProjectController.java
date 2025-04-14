@@ -3,7 +3,7 @@ package ru.tms.api;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.web.bind.annotation.*;
-import ru.tms.dto.ProjectDto;
+import ru.tms.dto.Project;
 import ru.tms.mappers.ProjectMapper;
 import ru.tms.services.ProjectServiceImpl;
 
@@ -24,20 +24,20 @@ public class ProjectController {
 
     @Operation(summary = "Get all Projects", description = "Return all Projects", tags = {"Project"})
     @GetMapping(value = "/projects")
-    public Collection<ProjectDto> getAllProjects() {
+    public Collection<Project> getAllProjects() {
         return projectServiceImpl.getAllProjects();
     }
 
     @Operation(summary = "Add Project", description = "Return created Project", tags = {"Project"})
     @PostMapping(value = "/project", consumes = "application/json")
-    public ProjectDto createProject(@RequestBody ProjectDto projectDto) {
-        return projectServiceImpl.createProject(projectDto);
+    public Project createProject(@RequestBody Project project) {
+        return projectServiceImpl.createProject(project);
     }
 
     @Operation(summary = "Update Project", description = "Return updated Project", tags = {"Project"})
     @PutMapping(value = "/project/{projectId}", consumes = "application/json")
-    public ProjectDto updateProject(@PathVariable Long projectId, @RequestBody ProjectDto projectDto) {
-        return projectServiceImpl.updateProject(projectId, projectDto);
+    public Project updateProject(@PathVariable Long projectId, @RequestBody Project project) {
+        return projectServiceImpl.updateProject(projectId, project);
     }
 
     @Operation(summary = "Delete Project", description = "Deletes the Project", tags = {"Project"})
@@ -48,7 +48,7 @@ public class ProjectController {
 
     @Operation(summary = "Get Project by Id", description = "Return Project", tags = {"Project"})
     @GetMapping(value = "/project/{projectId}")
-    public ProjectDto getProject(@PathVariable Long projectId) {
+    public Project getProject(@PathVariable Long projectId) {
         return projectMapper.toDto(projectServiceImpl.getProjectById(projectId));
     }
 

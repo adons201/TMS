@@ -1,23 +1,23 @@
 package ru.tms.services;
 
-import ru.tms.dto.SuiteDto;
-import ru.tms.entity.Suite;
+import ru.tms.dto.Suite;
+import ru.tms.entity.SuiteEntity;
 
 import java.util.List;
 
 public interface SuiteService {
 
-    List<SuiteDto> getAllSuitesByProject(Long projectId);
+    List<Suite> getAllSuitesByProject(Long projectId);
 
-    List<SuiteDto> getAllChildSuitesBySuite(Long suiteId);
+    List<Suite> getAllChildSuitesBySuite(Long suiteId);
 
-    List<SuiteDto> getChildSuitesBySuite(Long suiteId);
+    List<Suite> getChildSuitesBySuite(Long suiteId);
 
-    Suite getSuiteById(Long id);
+    SuiteEntity getSuiteById(Long id);
 
-    SuiteDto createSuite(SuiteDto suiteDto);
+    Suite createSuite(Suite suite);
 
-    SuiteDto updateSuite(Long suiteId, SuiteDto suiteDto);
+    Suite updateSuite(Long suiteId, Suite suite);
 
     void deleteSuite(Long id);
 }

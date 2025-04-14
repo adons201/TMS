@@ -24,13 +24,11 @@ import com.vaadin.flow.i18n.LocaleChangeEvent;
 import com.vaadin.flow.i18n.LocaleChangeObserver;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
-import ru.tms.dto.ProjectDto;
-import ru.tms.dto.TestDto;
-import ru.tms.services.CommentService;
-import ru.tms.services.ProjectService;
-import ru.tms.services.SuiteService;
-import ru.tms.services.TestService;
-import ru.tms.dto.SuiteDto;
+import ru.tms.components.buttons.SubscriptionButtonComponent;
+import ru.tms.dto.Project;
+import ru.tms.dto.Test;
+import ru.tms.services.*;
+import ru.tms.dto.Suite;
 import ru.tms.components.ReloadPage;
 import ru.tms.components.CreateTestComponent;
 import ru.tms.components.SuiteChildData;
@@ -56,23 +54,25 @@ public class ProjectView extends VerticalLayout implements HasUrlParameterMappin
     private final HorizontalLayout removeAction;
     private final HorizontalLayout projectAction;
     private Button removeButton;
-    private ProjectDto projectDto;
+    private Project project;
     private final ProjectService projectService;
     private final SuiteService suiteService;
     private final TestService testService;
     private final CommentService commentServiceClient;
-    private List<SuiteDto> allSuites;
+    private final SubscriptionService subscriptionServiceClient;
+    private List<Suite> allSuites;
     private final VerticalLayout body = new VerticalLayout();
     private List<ParentWebModel> allHierarchy;
     private static final int ROW_HEIGHT_PX = 70;
     private static final int MAX_ROW = 10;
 
     public ProjectView(ProjectService projectService, SuiteService suiteService, TestService testService,
-                       CommentService commentServiceClient) {
+                       CommentService commentServiceClient, SubscriptionService subscriptionServiceClient) {
         this.projectService = projectService;
         this.suiteService = suiteService;
         this.testService = testService;
         this.commentServiceClient = commentServiceClient;
+        this.subscriptionServiceClient = subscriptionServiceClient;
         setWidthFull();
         setHeightFull();
         Button createSuiteButton = createSuiteButton();
@@ -97,9 +97,11 @@ public class ProjectView extends VerticalLayout implements HasUrlParameterMappin
 
     @UrlParameter(name = "projectId")
     public void setProject(Long projectId) {
-        this.projectDto = this.projectService.getProject(projectId);
-        projectAction.add(new H2(getTranslation("project").concat(" id_" + this.projectDto.getId() + " "
-                + this.projectDto.getTitle())));
+        this.project = this.projectService.getProject(projectId);
+        projectAction.add(new H2(getTranslation("project").concat(" id_" + this.project.getId() + " "
+                + this.project.getTitle())));
+        projectAction.add(new SubscriptionButtonComponent(subscriptionServiceClient,
+                "project",this.project.getId(),"Adons201"));
         refresh();
     }
 
@@ -108,20 +110,20 @@ public class ProjectView extends VerticalLayout implements HasUrlParameterMappin
         removeButton = new Button();
         removeButton.setVisible(false);
         removeAction.add(removeButton);
-        allHierarchy = suiteService.getSuiteHierarchyNew(this.projectDto.getId());
-        allSuites = new ArrayList<>(suiteService.getAllSuitesByProject(this.projectDto.getId()));
+        allHierarchy = suiteService.getSuiteHierarchyNew(this.project.getId());
+        allSuites = new ArrayList<>(suiteService.getAllSuitesByProject(this.project.getId()));
         createTestButton.setVisible(!allHierarchy.isEmpty());
         body.removeAll();
         TreeGrid<ParentWebModel> grid = buildGrid();
         body.add(grid);
 
         TextArea projectDescription = new TextArea(getTranslation("projectsDescription"));
-        projectDescription.setValue(this.projectDto.getDescription());
+        projectDescription.setValue(this.project.getDescription());
         projectDescription.setReadOnly(true);
         projectDescription.getElement().getStyle().set("width", "45%");
 
         body.add(grid, projectDescription, new CommentView(commentServiceClient, "project",
-                projectDto.getId(), "Adons201"));
+                project.getId(), "Adons201"));
     }
 
     private TreeGrid<ParentWebModel> buildGrid() {
@@ -180,10 +182,10 @@ public class ProjectView extends VerticalLayout implements HasUrlParameterMappin
     private void deleteItems(Set<ParentWebModel> selectedItems) {
         selectedItems.forEach(parentWebModel -> {
             if (parentWebModel instanceof TestWebModel) {
-                TestDto test = ((TestWebModel) parentWebModel).getTest();
+                Test test = ((TestWebModel) parentWebModel).getTest();
                 testService.deleteTest(test.getId());
             } else {
-                SuiteDto suite = ((SuiteWebModel) parentWebModel).getSuite();
+                Suite suite = ((SuiteWebModel) parentWebModel).getSuite();
                 suiteService.deleteSuite(suite.getId());
             }
         });
@@ -216,35 +218,35 @@ public class ProjectView extends VerticalLayout implements HasUrlParameterMappin
         return del;
     }
 
-    private Button editSuiteButton(SuiteWebModel suite) {
+    private Button editSuiteButton(SuiteWebModel suiteWebModel) {
         Button createSuite = new Button();
         createSuite.setIcon(VaadinIcon.EDIT.create());
         createSuite.setText(getTranslation("edit"));
         createSuite.addClickListener(buttonClickEvent -> {
-            SuiteDto suiteDto = new SuiteDto();
-            Binder<SuiteDto> binder = new Binder<>();
+            Suite suite = new Suite();
+            Binder<Suite> binder = new Binder<>();
             VerticalLayout content = new VerticalLayout();
             TextField title = new TextField("Title");
-            binder.forField(title).asRequired().bind(SuiteDto::getName, SuiteDto::setName);
+            binder.forField(title).asRequired().bind(Suite::getName, Suite::setName);
             TextField description = new TextField("Description");
-            binder.forField(description).bind(SuiteDto::getDescription, SuiteDto::setDescription);
-            suiteDto.setProjectId(suite.getSuite().getProjectId());
-            title.setValue(suite.getSuite().getName());
-            description.setValue(suite.getSuite().getDescription());
+            binder.forField(description).bind(Suite::getDescription, Suite::setDescription);
+            suite.setProjectId(suiteWebModel.getSuite().getProjectId());
+            title.setValue(suiteWebModel.getSuite().getName());
+            description.setValue(suiteWebModel.getSuite().getDescription());
             Select<SuiteDiv> select = new Select<>();
             select.setLabel("Parent suite");
             Collection<SuiteDiv> suiteList = new LinkedList<>();
             allSuites.forEach(x -> {
                 suiteList.add(new SuiteDiv(x, suiteService.suiteAllParent(x.getProjectId(), x.getId())));
             });
-            suiteList.removeIf(suiteDiv -> suiteDiv.getId().equals(suite.getSuite().getId()));
-            suite.getChildrenSuites().forEach(x -> {
+            suiteList.removeIf(suiteDiv -> suiteDiv.getId().equals(suiteWebModel.getSuite().getId()));
+            suiteWebModel.getChildrenSuites().forEach(x -> {
                 suiteList.removeIf(suiteDiv -> suiteDiv.getId().equals(x.getSuite().getId()));
             });
             select.setItemLabelGenerator(SuiteDiv::getAllTitle);
             select.setItems(suiteList);
-            if (suite.getSuite().getParentId() != null) {
-                select.setValue(suiteList.stream().filter(x -> x.getId().equals(suite.getSuite().getParentId())).findFirst().get());
+            if (suiteWebModel.getSuite().getParentId() != null) {
+                select.setValue(suiteList.stream().filter(x -> x.getId().equals(suiteWebModel.getSuite().getParentId())).findFirst().get());
             }
             FormLayout gridLayout = new FormLayout();
             gridLayout.add(title, description, select);
@@ -262,11 +264,11 @@ public class ProjectView extends VerticalLayout implements HasUrlParameterMappin
             cancel.addClickListener((ComponentEventListener<ClickEvent<Button>>) buttonClickEvent1 -> window.close());
             save.addClickListener((ComponentEventListener<ClickEvent<Button>>) buttonClickEvent12 -> {
                 binder.validate();
-                if (binder.writeBeanIfValid(suiteDto)) {
+                if (binder.writeBeanIfValid(suite)) {
                     if (select.getValue() != null) {
-                        suiteDto.setParentId(select.getValue().getId());
+                        suite.setParentId(select.getValue().getId());
                     }
-                    suiteService.updateSuite(suite.getSuite().getId(), suiteDto);
+                    suiteService.updateSuite(suiteWebModel.getSuite().getId(), suite);
                     window.close();
                     refresh();
                 }
@@ -325,18 +327,18 @@ public class ProjectView extends VerticalLayout implements HasUrlParameterMappin
         createSuite.setIcon(VaadinIcon.PLUS_CIRCLE.create());
         createSuite.setText(getTranslation("createSuite"));
         createSuite.addClickListener(buttonClickEvent -> {
-            SuiteDto suiteDto = new SuiteDto();
-            Binder<SuiteDto> binder = new Binder<>();
+            Suite suite = new Suite();
+            Binder<Suite> binder = new Binder<>();
             VerticalLayout content = new VerticalLayout();
             TextField title = new TextField("Title");
-            binder.forField(title).asRequired().bind(SuiteDto::getName, SuiteDto::setName);
+            binder.forField(title).asRequired().bind(Suite::getName, Suite::setName);
             TextField description = new TextField("Description");
-            binder.forField(description).bind(SuiteDto::getDescription, SuiteDto::setDescription);
-            suiteDto.setProjectId(this.projectDto.getId());
+            binder.forField(description).bind(Suite::getDescription, Suite::setDescription);
+            suite.setProjectId(this.project.getId());
             Select<SuiteDiv> select = new Select<>();
             select.setLabel("Parent suite");
             List<SuiteDiv> suiteList = new LinkedList<>();
-            suiteService.getAllSuitesByProject(this.projectDto.getId())
+            suiteService.getAllSuitesByProject(this.project.getId())
                     .forEach(x -> {
                         suiteList.add(new SuiteDiv(x, suiteService.suiteAllParent(x.getProjectId(), x.getId())));
                     });
@@ -358,11 +360,11 @@ public class ProjectView extends VerticalLayout implements HasUrlParameterMappin
             cancel.addClickListener((ComponentEventListener<ClickEvent<Button>>) buttonClickEvent1 -> window.close());
             save.addClickListener((ComponentEventListener<ClickEvent<Button>>) buttonClickEvent12 -> {
                 binder.validate();
-                if (binder.writeBeanIfValid(suiteDto)) {
+                if (binder.writeBeanIfValid(suite)) {
                     if (select.getValue() != null) {
-                        suiteDto.setParentId(select.getValue().getId());
+                        suite.setParentId(select.getValue().getId());
                     }
-                    suiteService.createSuite(suiteDto);
+                    suiteService.createSuite(suite);
                     window.close();
                     refresh();
                 }
@@ -377,7 +379,7 @@ public class ProjectView extends VerticalLayout implements HasUrlParameterMappin
         createTest.setIcon(VaadinIcon.PLUS_CIRCLE.create());
         createTest.setText(getTranslation("createTest"));
         createTest.addClickListener(buttonClickEvent -> {
-            CreateTestComponent createTestComponent = new CreateTestComponent(this.projectDto.getId(), suiteService
+            CreateTestComponent createTestComponent = new CreateTestComponent(this.project.getId(), suiteService
                     , testService, this::refresh);
         });
         return createTest;

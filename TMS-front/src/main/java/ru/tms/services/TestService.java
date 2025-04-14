@@ -5,7 +5,7 @@ import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestClient;
-import ru.tms.dto.TestDto;
+import ru.tms.dto.Test;
 import ru.tms.services.client.TestClient;
 
 import java.util.*;
@@ -16,46 +16,46 @@ public class TestService implements TestClient {
     private final RestClient restClient;
 
     @Override
-    public List<TestDto> getAllTestByProjectId(Long projectId) {
+    public List<Test> getAllTestByProjectId(Long projectId) {
         return this.restClient.get()
                 .uri("/api/test/projectId/{projectId}", projectId)
                 .retrieve()
-                .body(new ParameterizedTypeReference<List<TestDto>>(){});
+                .body(new ParameterizedTypeReference<List<Test>>(){});
     }
 
-    public List<TestDto> getAllTestBySuiteId(Long suiteId) {
+    public List<Test> getAllTestBySuiteId(Long suiteId) {
         return this.restClient.get()
                 .uri("/api/test/suiteId/{suiteId}", suiteId)
                 .retrieve()
-                .body(new ParameterizedTypeReference<List<TestDto>>(){});
+                .body(new ParameterizedTypeReference<List<Test>>(){});
     }
 
     @Override
-    public TestDto getTest(Long testId) {
+    public Test getTest(Long testId) {
         return this.restClient.get()
                 .uri("/api/test/{testId}", testId)
                 .retrieve()
-                .body(TestDto.class);
+                .body(Test.class);
     }
 
     @Override
-    public TestDto createTest(TestDto testDto) {
+    public Test createTest(Test test) {
         return this.restClient.post()
                 .uri("/api/test")
                 .contentType(MediaType.APPLICATION_JSON)
-                .body(testDto)
+                .body(test)
                 .retrieve()
-                .body(TestDto.class);
+                .body(Test.class);
     }
 
     @Override
-    public TestDto updateTest(Long testId, TestDto testDto) {
+    public Test updateTest(Long testId, Test test) {
         return this.restClient.put()
                 .uri("/api/test/{testId}", testId)
                 .contentType(MediaType.APPLICATION_JSON)
-                .body(testDto)
+                .body(test)
                 .retrieve()
-                .body(TestDto.class);
+                .body(Test.class);
     }
 
     @Override

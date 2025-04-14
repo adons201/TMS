@@ -1,17 +1,18 @@
 package ru.tms.entity;
 
 import jakarta.persistence.*;
+import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
-import org.hibernate.annotations.UpdateTimestamp;
+import org.hibernate.annotations.*;
 
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "comments")
+@Table(name = "notifications")
 @Getter
 @Setter
-public class Comment {
+public class NotificationEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -20,18 +21,15 @@ public class Comment {
     @Column(nullable = false)
     private String content;
 
+    @CreationTimestamp
     @Column(nullable = false)
     private LocalDateTime createdAt;
 
-    @Column(nullable = false)
-    private String author;
+    @ManyToOne()
+    @JoinColumn(name = "subscription_id", nullable = false)
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    private SubscriptionEntity subscription;
 
     @Column(nullable = false)
-    private String targetType;
-
-    @Column(nullable = false)
-    private Long targetObjectId;
-
-    @Column(nullable = false)
-    private Boolean changed;
+    private Boolean read;
 }

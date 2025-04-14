@@ -21,7 +21,7 @@ import com.vaadin.flow.i18n.LocaleChangeObserver;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import ru.tms.services.ProjectService;
-import ru.tms.dto.ProjectDto;
+import ru.tms.dto.Project;
 import ru.tms.components.ReloadPage;
 
 @CssImport("./styles/shared-styles.css")
@@ -30,7 +30,7 @@ import ru.tms.components.ReloadPage;
 public class ProjectsView extends VerticalLayout implements LocaleChangeObserver {
 
     private final ProjectService projectServiceClient;
-    private Grid<ProjectDto> grid;
+    private Grid<Project> grid;
 
     public ProjectsView(ProjectService projectServiceClient) {
         this.projectServiceClient = projectServiceClient;
@@ -46,7 +46,7 @@ public class ProjectsView extends VerticalLayout implements LocaleChangeObserver
     }
 
     public void grid2() {
-        grid = new Grid<>(ProjectDto.class, false);
+        grid = new Grid<>(Project.class, false);
         refresh();
         grid.addColumn("id").setWidth("75px").setFlexGrow(0);
         grid.addColumn("title");
@@ -54,16 +54,16 @@ public class ProjectsView extends VerticalLayout implements LocaleChangeObserver
         grid.addComponentColumn(project -> createEditButton(project)).setKey("edit");
         grid.addComponentColumn(project -> createRemoveButton(project)).setKey("remove");
         grid.setColumnReorderingAllowed(false);
-        grid.addItemClickListener(new ComponentEventListener<ItemClickEvent<ProjectDto>>() {
+        grid.addItemClickListener(new ComponentEventListener<ItemClickEvent<Project>>() {
             @Override
-            public void onComponentEvent(ItemClickEvent<ProjectDto> projectItemClickEvent) {
+            public void onComponentEvent(ItemClickEvent<Project> projectItemClickEvent) {
                 UI.getCurrent().navigate(ProjectView.class,
                         projectItemClickEvent.getItem().getId().toString());
             }
         });
     }
 
-    private Button createRemoveButton(ProjectDto project) {
+    private Button createRemoveButton(Project project) {
         @SuppressWarnings("unchecked")
         Button button = new Button(getTranslation("remove"), clickEvent -> {
             ConfirmDialog confirmDialog = new ConfirmDialog(
@@ -83,18 +83,18 @@ public class ProjectsView extends VerticalLayout implements LocaleChangeObserver
         return button;
     }
 
-    private Button createEditButton(ProjectDto project) {
+    private Button createEditButton(Project project) {
         @SuppressWarnings("unchecked")
         Button button = new Button(getTranslation("edit"), clickEvent -> {
-            ProjectDto projectDto = ProjectDto.builder().build();
-            Binder<ProjectDto> binder = new Binder<>();
+            Project projectDto = Project.builder().build();
+            Binder<Project> binder = new Binder<>();
             VerticalLayout content = new VerticalLayout();
             TextField title = new TextField("Title");
             title.setValue(project.getTitle());
-            binder.forField(title).asRequired().bind(ProjectDto::getTitle, ProjectDto::setTitle);
+            binder.forField(title).asRequired().bind(Project::getTitle, Project::setTitle);
             TextField description = new TextField("Description");
             description.setValue(project.getDescription());
-            binder.forField(description).bind(ProjectDto::getDescription, ProjectDto::setDescription);
+            binder.forField(description).bind(Project::getDescription, Project::setDescription);
             FormLayout gridLayout = new FormLayout();
             gridLayout.add(title, description);
             Button cancel = new Button(getTranslation("cancel"));
@@ -136,13 +136,13 @@ public class ProjectsView extends VerticalLayout implements LocaleChangeObserver
         createProject.setIcon(VaadinIcon.PLUS_CIRCLE.create());
         createProject.setText(getTranslation("createProject"));
         createProject.addClickListener(buttonClickEvent -> {
-            ProjectDto projectDto = ProjectDto.builder().build();
-            Binder<ProjectDto> binder = new Binder<>();
+            Project project = Project.builder().build();
+            Binder<Project> binder = new Binder<>();
             VerticalLayout content = new VerticalLayout();
             TextField title = new TextField("Title");
-            binder.forField(title).asRequired().bind(ProjectDto::getTitle, ProjectDto::setTitle);
+            binder.forField(title).asRequired().bind(Project::getTitle, Project::setTitle);
             TextField description = new TextField("Description");
-            binder.forField(description).bind(ProjectDto::getDescription, ProjectDto::setDescription);
+            binder.forField(description).bind(Project::getDescription, Project::setDescription);
             FormLayout gridLayout = new FormLayout();
             gridLayout.add(title, description);
             Button cancel = new Button(getTranslation("cancel"));
@@ -166,8 +166,8 @@ public class ProjectsView extends VerticalLayout implements LocaleChangeObserver
                 @Override
                 public void onComponentEvent(ClickEvent<Button> buttonClickEvent) {
                     binder.validate();
-                    if (binder.writeBeanIfValid(projectDto)) {
-                        projectServiceClient.createProject(projectDto);
+                    if (binder.writeBeanIfValid(project)) {
+                        projectServiceClient.createProject(project);
                         window.close();
                         refresh();
                     }

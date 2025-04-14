@@ -1,22 +1,22 @@
 package ru.tms.services.client;
 
 import org.springframework.http.ResponseEntity;
-import ru.tms.dto.TestDto;
+import ru.tms.dto.Test;
 
 import java.util.List;
 
 public interface TestClient {
 
-    TestDto getTest(Long testId);
+    Test getTest(Long testId);
 
-    TestDto createTest(TestDto testDto);
+    Test createTest(Test test);
 
-    TestDto updateTest(Long id, TestDto testDto);
+    Test updateTest(Long id, Test test);
 
     ResponseEntity<Void> deleteTest(Long testId);
 
-    List<TestDto> getAllTestByProjectId(Long projectId);
+    List<Test> getAllTestByProjectId(Long projectId);
 
-    List<TestDto> getAllTestBySuiteId(Long suiteId);
+    List<Test> getAllTestBySuiteId(Long suiteId);
 
 }

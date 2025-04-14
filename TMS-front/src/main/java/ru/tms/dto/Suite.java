@@ -3,7 +3,7 @@ package ru.tms.dto;
 import lombok.Data;
 
 @Data
-public class SuiteDto {
+public class Suite {
 
     private Long id;
     private String name;

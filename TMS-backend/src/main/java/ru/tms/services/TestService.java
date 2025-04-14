@@ -1,25 +1,25 @@
 package ru.tms.services;
 
-import ru.tms.dto.TestDto;
-import ru.tms.entity.Test;
+import ru.tms.dto.Test;
+import ru.tms.entity.TestEntity;
 
 import java.util.List;
 
 public interface TestService {
 
-    Test getTestById(Long id);
+    TestEntity getTestById(Long id);
 
-    List<TestDto> getAllTests();
+    List<Test> getAllTests();
 
-    List<TestDto> getAllTestsByProjectId(Long id);
+    List<Test> getAllTestsByProjectId(Long id);
 
-    List<TestDto> getAllTestsBySuiteId(Long id);
+    List<Test> getAllTestsBySuiteId(Long id);
 
-    List<TestDto> getAllAndChildBySuiteId(Long id);
+    List<Test> getAllAndChildBySuiteId(Long id);
 
-    TestDto createTest(TestDto testDto);
+    Test createTest(Test test);
 
-    TestDto updateTest(Long testId, TestDto testDto);
+    Test updateTest(Long testId, Test test);
 
     void deleteTest(Long id);
 }

@@ -1,7 +1,7 @@
 package ru.tms.models;
 
 import lombok.Getter;
-import ru.tms.dto.SuiteDto;
+import ru.tms.dto.Suite;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -9,10 +9,10 @@ import java.util.List;
 public class SuiteWebModel implements ParentWebModel{
 
     @Getter
-    private SuiteDto suite;
+    private Suite suite;
     private List<ParentWebModel> children;
 
-    public SuiteWebModel(SuiteDto suite, List<ParentWebModel> children) {
+    public SuiteWebModel(Suite suite, List<ParentWebModel> children) {
         this.suite = suite;
         this.children = children;
     }

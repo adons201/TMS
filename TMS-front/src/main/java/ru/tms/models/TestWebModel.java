@@ -1,16 +1,16 @@
 package ru.tms.models;
 
 import lombok.Getter;
-import ru.tms.dto.TestDto;
+import ru.tms.dto.Test;
 
 import java.util.List;
 
 public class TestWebModel implements ParentWebModel{
 
     @Getter
-    private TestDto test;
+    private Test test;
 
-    public TestWebModel(TestDto test) {
+    public TestWebModel(Test test) {
         this.test = test;
     }
 

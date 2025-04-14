@@ -2,7 +2,7 @@ package ru.tms.components;
 
 
 import lombok.Data;
-import ru.tms.dto.SuiteDto;
+import ru.tms.dto.Suite;
 
 import java.util.List;
 
@@ -10,14 +10,14 @@ import java.util.List;
 public class SuiteDiv {
 
     private String allTitle;
-    private SuiteDto suite;
+    private Suite suite;
     private Long id;
     private String title;
     private String description;
     private Long projectId;
     private Long parentId;
 
-    public SuiteDiv(SuiteDto suite, List<SuiteDto> suitesParent) {
+    public SuiteDiv(Suite suite, List<Suite> suitesParent) {
         this.suite = suite;
         id = suite.getId();
         title = suite.getName();
@@ -35,8 +35,8 @@ public class SuiteDiv {
         }
     }
 
-    private void setTitles(List<SuiteDto> suitesParent) {
-        for(SuiteDto suiteDto: suitesParent){
+    private void setTitles(List<Suite> suitesParent) {
+        for(Suite suite : suitesParent){
             this.allTitle += " | ";
         }
     }

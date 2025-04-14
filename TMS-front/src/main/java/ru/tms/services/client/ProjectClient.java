@@ -1,19 +1,19 @@
 package ru.tms.services.client;
 
 import org.springframework.http.ResponseEntity;
-import ru.tms.dto.ProjectDto;
+import ru.tms.dto.Project;
 
 import java.util.List;
 
 public interface ProjectClient {
 
-    ProjectDto getProject(Long projectId);
+    Project getProject(Long projectId);
 
-    List<ProjectDto> getProjects();
+    List<Project> getProjects();
 
-    ProjectDto createProject(ProjectDto projectDto);
+    Project createProject(Project project);
 
-    ProjectDto updateProject(Long projectId, ProjectDto projectDto);
+    Project updateProject(Long projectId, Project project);
 
     ResponseEntity<Void> deleteProject(Long projectId);
 

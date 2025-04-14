@@ -7,6 +7,8 @@ tms:
       registration-id: keycloak
     comment:
       url: http://localhost:8001
+    notification:
+      url: http://localhost:8003
 spring:
   application:
     name: tms-front

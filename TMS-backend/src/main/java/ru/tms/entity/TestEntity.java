@@ -12,10 +12,10 @@ import org.hibernate.type.SqlTypes;
 import java.util.List;
 
 @Entity
-@Table
+@Table(name = "test")
 @Getter
 @Setter
-public class Test {
+public class TestEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -34,13 +34,13 @@ public class Test {
     @NotFound(action = NotFoundAction.IGNORE)
     @JoinColumn(name = "suiteId")
     @OnDelete(action = OnDeleteAction.CASCADE)
-    private Suite suiteId;
+    private SuiteEntity suiteId;
 
     @ManyToOne
     @NotFound(action = NotFoundAction.EXCEPTION)
     @JoinColumn(name = "projectId", nullable = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
-    private Project projectId;
+    private ProjectEntity projectId;
 
     @Column
     private Boolean automated;

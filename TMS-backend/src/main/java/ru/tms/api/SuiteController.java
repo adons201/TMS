@@ -6,8 +6,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import ru.tms.dto.SuiteDto;
-import ru.tms.entity.Suite;
+import ru.tms.dto.Suite;
 import ru.tms.mappers.SuiteMapper;
 import ru.tms.services.SuiteServiceImpl;
 
@@ -30,10 +29,10 @@ public class SuiteController {
 
     @Operation(summary = "Get Suite", description = "Return Suite", tags = {"Suite"})
     @GetMapping(value = "/suite/{suiteId}")
-    public ResponseEntity<SuiteDto> getSuiteById(@PathVariable Long suiteId) {
+    public ResponseEntity<Suite> getSuiteById(@PathVariable Long suiteId) {
         try {
-            SuiteDto suiteDto = suiteMapper.toDto(this.suiteServiceImpl.getSuiteById(suiteId));
-            return new ResponseEntity<>(suiteDto, HttpStatus.OK);
+            Suite suite = suiteMapper.toDto(this.suiteServiceImpl.getSuiteById(suiteId));
+            return new ResponseEntity<>(suite, HttpStatus.OK);
         } catch (NoSuchElementException e) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
@@ -41,32 +40,32 @@ public class SuiteController {
 
     @Operation(summary = "Get all Suites in Project", description = "Return all Suites in Project", tags = {"Suite"})
     @GetMapping(value = "/suites/{projectId}")
-    public List<SuiteDto> getAllSuitesByProject(@PathVariable Long projectId) {
+    public List<Suite> getAllSuitesByProject(@PathVariable Long projectId) {
         return suiteServiceImpl.getAllSuitesByProject(projectId);
     }
 
     @Operation(summary = "Get all Child Suites in Suite", description = "Return all Child Suites in Suite", tags = {"Suite"})
     @GetMapping(value = "/childAllSuites/{suiteId}")
-    public Collection<SuiteDto> getAllChildSuiteBySuite(@PathVariable Long suiteId) {
+    public Collection<Suite> getAllChildSuiteBySuite(@PathVariable Long suiteId) {
         return suiteServiceImpl.getAllChildSuitesBySuite(suiteId);
     }
 
     @Operation(summary = "Get Child Suites in Suite", description = "Return Child Suites in Suite", tags = {"Suite"})
     @GetMapping(value = "/childSuites/{suiteId}")
-    public Collection<SuiteDto> getChildSuiteBySuite(@PathVariable Long suiteId) {
+    public Collection<Suite> getChildSuiteBySuite(@PathVariable Long suiteId) {
         return suiteServiceImpl.getChildSuitesBySuite(suiteId);
     }
 
     @Operation(summary = "Add Suite", description = "Return created Suite", tags = {"Suite"})
     @PostMapping(value = "/suite", consumes = "application/json")
-    public SuiteDto createSuite(@Validated @RequestBody SuiteDto suiteDto) {
-        return suiteServiceImpl.createSuite(suiteDto);
+    public Suite createSuite(@Validated @RequestBody Suite suite) {
+        return suiteServiceImpl.createSuite(suite);
     }
 
     @Operation(summary = "Update Suite", description = "Return updated Suite", tags = {"Suite"})
     @PutMapping(value = "/suite/{suiteId}", consumes = "application/json")
-    public SuiteDto updateSuite(@PathVariable Long suiteId, @Validated @RequestBody SuiteDto suiteDto) {
-        return suiteServiceImpl.updateSuite(suiteId, suiteDto);
+    public Suite updateSuite(@PathVariable Long suiteId, @Validated @RequestBody Suite suite) {
+        return suiteServiceImpl.updateSuite(suiteId, suite);
     }
 
     @Operation(summary = "Delete Suite", description = "", tags = {"Suite"})

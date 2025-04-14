@@ -19,7 +19,7 @@ import ru.tms.components.vaadin.maxime.MarkdownArea;
 import ru.tms.dto.Step;
 import ru.tms.services.SuiteService;
 import ru.tms.services.TestService;
-import ru.tms.dto.TestDto;
+import ru.tms.dto.Test;
 import ru.tms.converters.ConvertSuiteDivToSuiteDto;
 
 import java.util.LinkedHashMap;
@@ -31,8 +31,8 @@ import java.util.Map;
 public class CreateTestComponent extends Dialog {
 
     private VerticalLayout verticalStep = new VerticalLayout();
-    private Binder<TestDto> binder;
-    private TestDto testDto;
+    private Binder<Test> binder;
+    private Test test;
     int i = 1;
     private HorizontalLayout action;
     Select<SuiteDiv> select;
@@ -49,17 +49,17 @@ public class CreateTestComponent extends Dialog {
         getElement().setAttribute("aria-label", getTranslation("createTestTitle"));
         getElement().getStyle().set("scrolling","auto");
         this.testService = testService;
-        testDto = new TestDto();
+        test = new Test();
         binder = new Binder<>();
         VerticalLayout content = new VerticalLayout();
         TextField title = new TextField("Title");
         title.setRequired(true);
         binder.forField(title)
                 .withValidator(new StringLengthValidator(getTranslation("fill"),1,200))
-                .bind(TestDto::getTitle, TestDto::setTitle);
+                .bind(Test::getTitle, Test::setTitle);
         TextField description = new TextField("Description");
-        binder.forField(description).bind(TestDto::getDescription, TestDto::setDescription);
-        testDto.setProjectId(projectId);
+        binder.forField(description).bind(Test::getDescription, Test::setDescription);
+        test.setProjectId(projectId);
         select = new Select<>();
         select.setRequiredIndicatorVisible(true);
         select.setLabel("Parent Suite");
@@ -70,12 +70,12 @@ public class CreateTestComponent extends Dialog {
                 });
         select.setItemLabelGenerator(SuiteDiv::getAllTitle);
         select.setItems(suiteList);
-        binder.forField(select).withConverter(new ConvertSuiteDivToSuiteDto()).asRequired().bind(TestDto::getSuiteId,TestDto::setSuiteId);
+        binder.forField(select).withConverter(new ConvertSuiteDivToSuiteDto()).asRequired().bind(Test::getSuiteId, Test::setSuiteId);
         Checkbox isAutomated = new Checkbox();
         isAutomated.setLabel("Automated");
-        binder.forField(isAutomated).bind(TestDto::getAutomated,TestDto::setAutomated);
+        binder.forField(isAutomated).bind(Test::getAutomated, Test::setAutomated);
         TextField status = new TextField("Status");
-        binder.forField(status).bind(TestDto::getStatus,TestDto::setStatus);
+        binder.forField(status).bind(Test::getStatus, Test::setStatus);
         FormLayout gridLayout = new FormLayout();
         gridLayout.setWidthFull();
         init();
@@ -110,10 +110,10 @@ public class CreateTestComponent extends Dialog {
                         steps.add(entry.getKey());
                     }
                 }
-                testDto.setSteps(steps);
+                test.setSteps(steps);
                 binder.validate();
-                if (binder.writeBeanIfValid(testDto)) {
-                    testService.createTest(testDto);
+                if (binder.writeBeanIfValid(test)) {
+                    testService.createTest(test);
                     close();
                     actionClose.run();
                 }

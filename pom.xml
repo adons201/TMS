@@ -17,6 +17,7 @@
         <module>TMS-front</module>
         <module>TMS-backend</module>
         <module>TMS-comments</module>
+        <module>TMS-notifications</module>
     </modules>
 
     <properties>

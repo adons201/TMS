@@ -7,6 +7,8 @@ tms:
       url: lb://api-gateway
     comment:
       url: lb://tms-comment
+    notification:
+      url: lb://tms-notification
 spring:
   mustache:
     check-template-location: false

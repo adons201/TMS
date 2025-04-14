@@ -6,8 +6,8 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestClient;
 import ru.tms.dto.SuiteChild;
-import ru.tms.dto.SuiteDto;
-import ru.tms.dto.TestDto;
+import ru.tms.dto.Suite;
+import ru.tms.dto.Test;
 import ru.tms.models.ParentWebModel;
 import ru.tms.models.SuiteWebModel;
 import ru.tms.models.TestWebModel;
@@ -23,39 +23,39 @@ public class SuiteService implements SuiteClient {
     private final RestClient restClient;
 
     @Override
-    public SuiteDto getSuiteById(Long suiteId) {
+    public Suite getSuiteById(Long suiteId) {
         return this.restClient.get()
                 .uri("/api/suite{suiteId}",suiteId)
                 .retrieve()
-                .body(SuiteDto.class);
+                .body(Suite.class);
     }
 
     @Override
-    public List<SuiteDto> getAllSuitesByProject(Long projectId) {
+    public List<Suite> getAllSuitesByProject(Long projectId) {
         return this.restClient.get()
                 .uri("/api/suites/{projectId}",projectId)
                 .retrieve()
-                .body(new ParameterizedTypeReference<List<SuiteDto>>(){});
+                .body(new ParameterizedTypeReference<List<Suite>>(){});
     }
 
     @Override
-    public SuiteDto createSuite(SuiteDto suiteDto) {
+    public Suite createSuite(Suite suite) {
         return this.restClient.post()
                 .uri("/api/suite")
                 .contentType(MediaType.APPLICATION_JSON)
-                .body(suiteDto)
+                .body(suite)
                 .retrieve()
-                .body(SuiteDto.class);
+                .body(Suite.class);
     }
 
     @Override
-    public SuiteDto updateSuite(Long suiteId, SuiteDto suiteDto) {
+    public Suite updateSuite(Long suiteId, Suite suite) {
         return this.restClient.post()
                 .uri("/api/suite/{suiteId}", suiteId)
                 .contentType(MediaType.APPLICATION_JSON)
-                .body(suiteDto)
+                .body(suite)
                 .retrieve()
-                .body(SuiteDto.class);
+                .body(Suite.class);
     }
 
     @Override
@@ -76,9 +76,9 @@ public class SuiteService implements SuiteClient {
 
     public List<SuiteChild> suiteChild(Long projectId) {
         List<SuiteChild> suiteChildren = new LinkedList<>();
-        Collection<SuiteDto> allSuite = getAllSuitesByProject(projectId);
-        List<SuiteDto> parent = allSuite.stream().filter(x -> x.getParentId() == null).toList();
-        List<SuiteDto> childs = allSuite.stream().filter(x -> x.getParentId() != null).toList();
+        Collection<Suite> allSuite = getAllSuitesByProject(projectId);
+        List<Suite> parent = allSuite.stream().filter(x -> x.getParentId() == null).toList();
+        List<Suite> childs = allSuite.stream().filter(x -> x.getParentId() != null).toList();
         parent.forEach(x -> {
             suiteChildren.add(new SuiteChild(
                     x,
@@ -91,10 +91,10 @@ public class SuiteService implements SuiteClient {
 
     public List<ParentWebModel> suiteChildNew(Long projectId) {
         List<ParentWebModel> suiteChildren = new LinkedList<>();
-        List<SuiteDto> allSuites = getAllSuitesByProject(projectId);
-        List<TestDto> allTests = testService.getAllTestByProjectId(projectId);
-        List<SuiteDto> parent = allSuites.stream().filter(x -> x.getParentId() == null).toList();
-        List<SuiteDto> children = allSuites.stream().filter(x -> x.getParentId() != null).toList();
+        List<Suite> allSuites = getAllSuitesByProject(projectId);
+        List<Test> allTests = testService.getAllTestByProjectId(projectId);
+        List<Suite> parent = allSuites.stream().filter(x -> x.getParentId() == null).toList();
+        List<Suite> children = allSuites.stream().filter(x -> x.getParentId() != null).toList();
         parent.forEach(x -> {
             suiteChildren.add(new SuiteWebModel(
                     x,
@@ -103,14 +103,14 @@ public class SuiteService implements SuiteClient {
         return suiteChildren;
     }
 
-    public List<SuiteDto> suiteAllParent(Long projectId, Long suiteId) {
-        List<SuiteDto> allSuites = getAllSuitesByProject(projectId);
-        List<SuiteDto> parentSuite = new LinkedList<>();
+    public List<Suite> suiteAllParent(Long projectId, Long suiteId) {
+        List<Suite> allSuites = getAllSuitesByProject(projectId);
+        List<Suite> parentSuite = new LinkedList<>();
         return suiteParent(suiteId, allSuites, parentSuite);
     }
 
-    private List<SuiteDto> suiteParent(Long suiteId, List<SuiteDto> allSuites, List<SuiteDto> parentSuites) {
-        Stream<SuiteDto> stream = allSuites.stream().filter(x -> x.getId().equals(suiteId))
+    private List<Suite> suiteParent(Long suiteId, List<Suite> allSuites, List<Suite> parentSuites) {
+        Stream<Suite> stream = allSuites.stream().filter(x -> x.getId().equals(suiteId))
                 .peek(x -> {
                     parentSuites.add(x);
                     suiteParent(x.getParentId(), allSuites, parentSuites);
@@ -120,7 +120,7 @@ public class SuiteService implements SuiteClient {
 
 
 
-    private Collection<SuiteChild> children(SuiteDto parent, List<SuiteDto> childs) {
+    private Collection<SuiteChild> children(Suite parent, List<Suite> childs) {
         Collection<SuiteChild> suiteChildren = new LinkedList<>();
         childs.stream()
                 .filter(y -> y.getParentId().equals(parent.getId()))
@@ -136,7 +136,7 @@ public class SuiteService implements SuiteClient {
         return suiteChildren;
     }
 
-    private Collection<ParentWebModel> childrenNew(SuiteDto parent, List<SuiteDto> allSuite, List<TestDto> allTests) {
+    private Collection<ParentWebModel> childrenNew(Suite parent, List<Suite> allSuite, List<Test> allTests) {
         Collection<ParentWebModel> suiteChildren = new LinkedList<>();
         allTests.stream()
                 .filter(y -> y.getSuiteId().equals(parent.getId()))
@@ -155,9 +155,9 @@ public class SuiteService implements SuiteClient {
         return suiteChildren;
     }
 
-    private Collection<SuiteDto> allChildren(Collection<SuiteDto> suites, SuiteDto parentSuite) {
-        Collection<SuiteDto> result = new LinkedList<>();
-        Collection<SuiteDto> child = suites.stream().filter(x -> x.getParentId().equals(parentSuite.getId())).toList();
+    private Collection<Suite> allChildren(Collection<Suite> suites, Suite parentSuite) {
+        Collection<Suite> result = new LinkedList<>();
+        Collection<Suite> child = suites.stream().filter(x -> x.getParentId().equals(parentSuite.getId())).toList();
         child.forEach(x -> {
             result.add(x);
             result.addAll(allChildren(suites, x));

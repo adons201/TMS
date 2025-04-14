@@ -1,14 +1,16 @@
 package ru.tms.mappers;
 
 import org.mapstruct.Mapper;
-import ru.tms.dto.CommentDto;
-import ru.tms.entity.Comment;
+import ru.tms.dto.Comment;
+import ru.tms.dto.ReducedComment;
+import ru.tms.entity.CommentEntity;
 
 import java.util.List;
 
 @Mapper(componentModel = "spring")
 public interface CommentMapper {
-    CommentDto toDto(Comment comment);
-    List<CommentDto> toDto(List<Comment> comments);
-    Comment toEntity(CommentDto commentDto);
+    Comment toDto(CommentEntity comment);
+    List<Comment> toDto(List<CommentEntity> comments);
+    CommentEntity toEntity(Comment comment);
+    ReducedComment toReduced(Comment comment);
 }

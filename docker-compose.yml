@@ -14,6 +14,7 @@ services:
     volumes:
       - ./config/keycloak/import:/opt/keycloak/data/import
     command: start-dev --import-realm
+
   postgres:
     image: postgres:14.8-alpine3.18
     environment:
@@ -32,6 +33,7 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+
   redis:
     image: redis:latest
     container_name: tms-redis
@@ -45,6 +47,7 @@ services:
       command: redis-server --requirepass pass --bind '*' --protected-mode no
     networks:
       - tms_network
+
   #Сервисы
   config-server:
     container_name: tms-config-server
@@ -62,6 +65,7 @@ services:
       - tms_network
     ports:
       - '8888:8888'
+
   eureka-server:
     container_name: tms-eureka-server
     restart: always
@@ -73,6 +77,7 @@ services:
       - tms_network
     ports:
       - '8002:8002'
+
   api-gateway:
     container_name: api-gateway
     restart: always
@@ -97,6 +102,7 @@ services:
         delay: 5s
         max_attempts: 3
         window: 60s
+
   tms-backend:
     container_name: tms-backend
     restart: always
@@ -123,6 +129,7 @@ services:
         delay: 5s
         max_attempts: 3
         window: 120s
+
   tms-front:
     container_name: tms-front
     restart: always

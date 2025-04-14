@@ -2,17 +2,17 @@ package ru.tms.mappers;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
-import org.mapstruct.Mappings;
-import ru.tms.dto.SuiteDto;
-import ru.tms.entity.Suite;
+import ru.tms.dto.Suite;
+import ru.tms.entity.SuiteEntity;
 
 import java.util.List;
 
 @Mapper(componentModel = "spring")
 public interface SuiteMapper {
 
-    @Mapping(target = "projectId", expression = "java(suite.getProject().getId())")
-    @Mapping(target = "parentId", expression = "java(suite.getParentId() != null ? suite.getParentId().getId() : null)")
-    SuiteDto toDto(Suite suite);
-    List<SuiteDto> toDto(List<Suite> suites);
+    @Mapping(target = "projectId", expression = "java(suiteEntity.getProject().getId())")
+    @Mapping(target = "parentId",
+            expression = "java(suiteEntity.getParentId() != null ? suiteEntity.getParentId().getId() : null)")
+    Suite toDto(SuiteEntity suiteEntity);
+    List<Suite> toDto(List<SuiteEntity> suiteEntity);
 }

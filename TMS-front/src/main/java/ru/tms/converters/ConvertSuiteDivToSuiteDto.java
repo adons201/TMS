@@ -3,12 +3,12 @@ package ru.tms.converters;
 import com.vaadin.flow.data.binder.Result;
 import com.vaadin.flow.data.binder.ValueContext;
 import com.vaadin.flow.data.converter.Converter;
-import ru.tms.dto.SuiteDto;
+import ru.tms.dto.Suite;
 import ru.tms.components.SuiteDiv;
 
 public class ConvertSuiteDivToSuiteDto implements Converter<SuiteDiv, Long> {
 
-    SuiteDto suiteDto;
+    Suite suite;
     SuiteDiv suiteDiv;
 
     @Override
@@ -18,9 +18,9 @@ public class ConvertSuiteDivToSuiteDto implements Converter<SuiteDiv, Long> {
         }
         try {
             this.suiteDiv = suiteDiv;
-            suiteDto = new SuiteDto();
-            suiteDto.setParentId(suiteDiv.getSuite().getId());
-            return Result.ok(suiteDto.getParentId());
+            suite = new Suite();
+            suite.setParentId(suiteDiv.getSuite().getId());
+            return Result.ok(suite.getParentId());
         } catch (Exception e) {
             return Result.error("Selected value");
         }

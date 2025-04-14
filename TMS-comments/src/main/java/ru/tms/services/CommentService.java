@@ -1,19 +1,19 @@
 package ru.tms.services;
 
-import ru.tms.dto.CommentDto;
-import ru.tms.entity.Comment;
+import ru.tms.dto.Comment;
+import ru.tms.entity.CommentEntity;
 
 import java.util.List;
 
 public interface CommentService {
 
-    Comment getCommentById(Long commentId);
+    CommentEntity getCommentById(Long commentId);
 
-    List<CommentDto> getAllComments(String targetType, Long targetObjectId);
+    List<Comment> getAllComments(String targetType, Long targetObjectId);
 
-    CommentDto createComment(CommentDto commentDto);
+    Comment createComment(Comment comment);
 
-    CommentDto updateComment(CommentDto commentDto, Long commentId);
+    Comment updateComment(Comment comment, Long commentId);
 
     void deleteComment(Long commentId);
 }
