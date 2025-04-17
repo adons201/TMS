@@ -1,6 +1,6 @@
 package ru.tms.dto;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 
-public record Comment(Long id, String content, LocalDateTime createdAt, String author,
+public record Comment(Long id, String content, Instant createdAt, String author,
                       String targetType, Long targetObjectId, Boolean changed) {}

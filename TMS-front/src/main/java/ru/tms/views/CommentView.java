@@ -5,16 +5,16 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Span;
+import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
-import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.textfield.TextArea;
 import ru.tms.dto.Comment;
 import ru.tms.services.CommentService;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.List;
 
 public class CommentView extends Composite<VerticalLayout> {
@@ -54,7 +54,7 @@ public class CommentView extends Composite<VerticalLayout> {
     private void addComment() {
         commentServiceClient.createComment(Comment.builder()
                 .content(commentInput.getValue())
-                .createdAt(LocalDateTime.now())
+                .createdAt(Instant.now())
                 .targetObjectId(targetId)
                 .targetType(targetType)
                 .author(author)
