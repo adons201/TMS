@@ -11,6 +11,7 @@ import ru.tms.entity.CommentEntity;
 import ru.tms.mappers.CommentMapper;
 import ru.tms.repo.CommentRepo;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -36,7 +37,7 @@ class CommentServiceImplTest {
     @DisplayName("Должен корректно вернуться объект комментария по заданному commentId")
     void shouldReturnCommentWhenFoundById() {
         // Arrange
-        Long commentId =1L;
+        Long commentId = 1L;
         CommentEntity expectedComment = new CommentEntity();
         when(commentRepo.findById(commentId)).thenReturn(Optional.of(expectedComment));
 
@@ -51,7 +52,6 @@ class CommentServiceImplTest {
     @Test
     @DisplayName("Должен корректно вернуться List объектов комментария по заданным targetType, targetObjectId")
     void shouldReturnAllComments() {
-        lenient();
         // Arrange
         String targetType = "project";
         Long targetObjectId = 1L;
@@ -65,8 +65,13 @@ class CommentServiceImplTest {
                     List<Comment> result = new ArrayList<>();
 
                     for (CommentEntity comment : inputComments) {
-                        result.add(new Comment(comment.getId(), comment.getContent(), comment.getCreatedAt(),
-                                comment.getAuthor(), comment.getTargetType(), comment.getTargetObjectId(), comment.getChanged()));
+                        result.add(new Comment(comment.getId(),
+                                comment.getContent(),
+                                comment.getCreatedAt(),
+                                comment.getAuthor(),
+                                comment.getTargetType(),
+                                comment.getTargetObjectId(),
+                                comment.getChanged()));
                     }
                     return result;
                 });
@@ -84,13 +89,16 @@ class CommentServiceImplTest {
     @DisplayName("Должен корректно создать коммент")
     void shouldCreateComment() {
         // Arrange
-        Comment comment = new Comment(1L, "New comment", LocalDateTime.now(),"John Doe", "project", 1L,  false);
-        CommentEntity expectedComment = new CommentEntity();
-        expectedComment.setContent(comment.content());
-        expectedComment.setAuthor(comment.author());
-        expectedComment.setTargetType(comment.targetType());
-        expectedComment.setTargetObjectId(comment.targetObjectId());
-        expectedComment.setChanged(false);
+        Comment comment = new Comment(1L, "New comment", Instant.now(), "John Doe",
+                "project", 1L, false);
+        CommentEntity expectedComment = CommentEntity.builder()
+                .content(comment.content())
+                .author(comment.author())
+                .createdAt(comment.createdAt())
+                .targetType(comment.targetType())
+                .targetObjectId(comment.targetObjectId())
+                .changed(comment.changed())
+                .build();
         when(commentMapper.toEntity(comment)).thenReturn(expectedComment);
         when(commentRepo.save(expectedComment)).thenReturn(expectedComment);
         when(commentMapper.toDto(expectedComment)).thenReturn(comment);
@@ -110,14 +118,17 @@ class CommentServiceImplTest {
     void shouldUpdateComment() {
         // Arrange
         Long commentId = 1L;
-        Comment comment = new Comment(1L, "Updated comment", LocalDateTime.now(),"John Doe", "project", 1L,  false);
-        CommentEntity existingComment = new CommentEntity();
-        existingComment.setId(commentId);
-        existingComment.setContent("Old comment");
-        existingComment.setAuthor("John Doe");
-        existingComment.setTargetType("project");
-        existingComment.setTargetObjectId(1L);
-        existingComment.setChanged(false);
+        Comment comment = new Comment(1L, "Updated comment", Instant.now(), "John Doe",
+                "project", 1L, false);
+        CommentEntity existingComment = CommentEntity.builder()
+                .id(commentId)
+                .content("Old comment")
+                .author("John Doe")
+                .createdAt(comment.createdAt())
+                .targetType("project")
+                .targetObjectId(1L)
+                .changed(false)
+                .build();
         when(commentRepo.findById(commentId)).thenReturn(Optional.of(existingComment));
         when(commentRepo.save(existingComment)).thenReturn(existingComment);
         when(commentMapper.toDto(existingComment)).thenReturn(comment);
