@@ -1,51 +1,47 @@
-package ru.tms.services;
+package ru.tms.api;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import ru.tms.api.CommentController;
 import ru.tms.dto.Comment;
 import ru.tms.entity.CommentEntity;
+import ru.tms.exceptions.InvalidCommentDataException;
 import ru.tms.mappers.CommentMapper;
 import ru.tms.producer.CommentCommentKafkaProducerImpl;
+import ru.tms.services.CommentServiceImpl;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.NoSuchElementException;
 
+import static org.hamcrest.Matchers.is;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@ExtendWith(MockitoExtension.class)
+
+@WebMvcTest(CommentController.class)
+@ActiveProfiles("cloudconfig")
 public class CommentControllerTest {
 
-    @InjectMocks
-    private CommentController controller;
-
-    @Mock
-    private CommentServiceImpl commentService;
-
-    @Mock
-    private CommentMapper commentMapper;
-
-    @Mock
-    private CommentCommentKafkaProducerImpl kafkaProducer;
-
+    @Autowired
     private MockMvc mockMvc;
 
-    @BeforeEach
-    void setUp() {
-        mockMvc = MockMvcBuilders.standaloneSetup(controller).build();
-    }
+    @MockitoBean
+    private CommentServiceImpl commentService;
+
+    @MockitoBean
+    private CommentMapper commentMapper;
+
+    @MockitoBean
+    private CommentCommentKafkaProducerImpl kafkaProducer;
 
     @Test
     @DisplayName("Метод GET /comment/{commentId} должен корректно вернуть dto")
@@ -171,6 +167,61 @@ public class CommentControllerTest {
         verify(commentService, times(1)).deleteComment(eq(commentId));
     }
 
+    @Test
+    @DisplayName("Метод GET /comment/{commentId} должен вернуться статус 404")
+    void getComment_CommentNoSuch_ShouldReturnNotFound() throws Exception {
+        //Arrange
+        Long commentId = 1L;
+
+        when(commentService.getCommentById(eq(commentId))).thenThrow(new NoSuchElementException());
+
+        //Act & Assert
+        mockMvc.perform(get("/tms_comment/comment/" + commentId))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.message", is("No value present")))
+                .andExpect(jsonPath("$.status", is(404)));
+    }
+
+    @Test
+    @DisplayName("Метод POST /comment должен вернуться статус 400")
+    void createComment_InvalidCommentData_ShouldReturnBadRequest() throws Exception {
+        // Arrange
+        Long commentId = 1L;
+        Comment commentToUpdate = new Comment(commentId, "", null, "John Doe",
+                "project", 1L, false);
+
+        when(commentService.createComment(commentToUpdate))
+                .thenThrow(new InvalidCommentDataException("Comment content cannot be null or empty"));
+
+
+        //Act & Assert
+        mockMvc.perform(post("/tms_comment/comment")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(asJsonString(commentToUpdate))).andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message", is("Comment content cannot be null or empty")))
+                .andExpect(jsonPath("$.status", is(400)));
+    }
+
+    @Test
+    @DisplayName("Метод PUT /comment/{commentId} должен вернуться статус 400")
+    void updateComment_InvalidCommentData_ShouldReturnBadRequest() throws Exception {
+        // Arrange
+        Long commentId = 1L;
+        Comment commentToUpdate = new Comment(commentId, "", null, "John Doe",
+                "project", 1L, false);
+
+        when(commentService.updateComment(commentToUpdate, commentId))
+                .thenThrow(new InvalidCommentDataException("Comment content cannot be null or empty"));
+
+
+        //Act & Assert
+        mockMvc.perform(put("/tms_comment/comment/" + commentId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(asJsonString(commentToUpdate))).andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message", is("Comment content cannot be null or empty")))
+                .andExpect(jsonPath("$.status", is(400)));
+    }
+
     private String asJsonString(final Object obj) {
         try {
             return new com.fasterxml.jackson.databind.ObjectMapper().writeValueAsString(obj);
@@ -178,5 +229,4 @@ public class CommentControllerTest {
             throw new RuntimeException(e);
         }
     }
-
 }

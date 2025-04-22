@@ -13,7 +13,7 @@ import java.util.List;
 @RequestMapping("/tms_comment")
 public class CommentController {
 
-    private final CommentService commentService;
+    private final CommentServiceImpl commentService;
     private final CommentMapper commentMapper;
     private final CommentCommentKafkaProducerImpl commentKafkaProducer;
 
