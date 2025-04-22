@@ -111,13 +111,67 @@ services:
       args:
         JAR_FILE: TMS-backend/target/TMS-backend-0.0.2-SNAPSHOT-exec.jar
     environment:
-      SPRING_PROFILES_ACTIVE: doсker, gateway
-      DB_URL: "jdbc:postgresql://postgres:5432/postgres"
-      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/postgres
-      SPRING_DATASOURCE_USERNAME: postgres
-      SPRING_DATASOURCE_PASSWORD: postgres
+      SPRING_PROFILES_ACTIVE: doсker
+      DB_URL: "jdbc:postgresql://postgres:5432/tms_back"
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/tms_back
+      SPRING_DATASOURCE_USERNAME: tms_back
+      SPRING_DATASOURCE_PASSWORD: tms_back
     ports:
       - "8081:8081"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - tms_network
+    deploy:
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+        window: 120s
+
+  tms-comment:
+    container_name: tms-comment
+    restart: always
+    build:
+      dockerfile: Dockerfile
+      args:
+        JAR_FILE: TMS-comments/target/TMS-comments-0.0.2-SNAPSHOT-exec.jar
+    environment:
+      SPRING_PROFILES_ACTIVE: doсker
+      DB_URL: "jdbc:postgresql://postgres:5432/tms_back"
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/tms_back
+      SPRING_DATASOURCE_USERNAME: tms_back
+      SPRING_DATASOURCE_PASSWORD: tms_back
+    ports:
+      - "8081:8081"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - tms_network
+    deploy:
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+        window: 120s
+
+  tms-notification:
+    container_name: tms-notification
+    restart: always
+    build:
+      dockerfile: Dockerfile
+      args:
+        JAR_FILE: TMS-notification/target/TMS-notification-0.0.2-SNAPSHOT-exec.jar
+    environment:
+      SPRING_PROFILES_ACTIVE: doсker
+      DB_URL: "jdbc:postgresql://postgres:5432/tms_back"
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/tms_back
+      SPRING_DATASOURCE_USERNAME: tms_back
+      SPRING_DATASOURCE_PASSWORD: tms_back
+    ports:
+      - "8003:8003"
     depends_on:
       postgres:
         condition: service_healthy
