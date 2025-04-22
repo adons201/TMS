@@ -147,6 +147,16 @@ class CommentServiceImplTest {
     void shouldDeleteComment() {
         // Arrange
         Long commentId = 1L;
+        CommentEntity existingComment = CommentEntity.builder()
+                .id(commentId)
+                .content("Old comment")
+                .author("John Doe")
+                .createdAt(Instant.now())
+                .targetType("project")
+                .targetObjectId(1L)
+                .changed(false)
+                .build();
+        when(commentRepo.findById(commentId)).thenReturn(Optional.of(existingComment));
 
         // Act
         commentService.deleteComment(commentId);
