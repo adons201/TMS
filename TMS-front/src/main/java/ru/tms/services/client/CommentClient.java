@@ -4,16 +4,17 @@ import org.springframework.http.ResponseEntity;
 import ru.tms.dto.Comment;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface CommentClient {
 
-    Comment getComment(Long commentId);
+    Optional<Comment> getComment(Long commentId);
 
     List<Comment> getAllComments(String targetType, Long targetObjectId);
 
-    Comment createComment(Comment comment);
+    Optional<Comment> createComment(Comment comment);
 
-    Comment updateComment(Long commentId, Comment comment);
+    Optional<Comment> updateComment(Long commentId, Comment comment);
 
     ResponseEntity<Void> deleteComment(Long commentId);
 
