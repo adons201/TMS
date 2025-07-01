@@ -12,3 +12,5 @@ spring:
       fail-fast: true
       profile: cloudconfig
 
+
+
